@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html>
+  <head><meta name="generator" content="Hexo 3.9.0">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="Lin&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+  <link rel="shortcut icon" type="image/ico" href="images/avatar.png">
+  
+  <title>
+     FreeRTOS-schedule | Lin&#39;s Blog 
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css"> 
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+   <script src="/js/qrious.js"></script>   
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+ 
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-169360841-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag() {
+    dataLayer.push(arguments);
+  }
+  gtag("js", new Date());
+  gtag("config", "UA-169360841-1");
+</script>
+
+
+</head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png">
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Lin's Blog</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/en/" class="item-link">EN</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/en/" class="menu-link">EN</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>FreeRTOS-schedule</h2>
+  <p class="post-date">2019-07-13</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h2 id="任务"><a href="#任务" class="headerlink" title="任务"></a>任务</h2><p>FreeRTOS的任务处理函数结构比较简单，函数内不允许return，必须运行在一个无限循环中。<br>如果不需要，最好显示的删除该任务。</p>
+<h2 id="任务状态"><a href="#任务状态" class="headerlink" title="任务状态"></a>任务状态</h2><p>类似常见的操作系统任务状态，FreeRTOS有几个简单的任务状态。</p>
+<p><img src="/images/freertos-1.png"></p>
+<p>大部分任务，都运行在Running和Blocked这两种状态之间。</p>
+<h2 id="调度策略"><a href="#调度策略" class="headerlink" title="调度策略"></a>调度策略</h2><p>这里，重点看一下任务的调度策略<br>首先，FreeRTOS支持抢占式(configUSE_PREEMPTION)和时间片轮转(configUSE_TIME_SLICING)，并且两个都是默认开启的。<br>由此，通关配置这两个宏，可以实现不同的调度策略。</p>
+<h3 id="策略1"><a href="#策略1" class="headerlink" title="策略1"></a>策略1</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">configUSE_PREEMPTION = <span class="number">1</span></span><br><span class="line">configUSE_TIME_SLICING = <span class="number">1</span></span><br></pre></td></tr></table></figure>
+<p>默认策略，时间片轮转，允许抢占。</p>
+<p><img src="/images/freertos-2.png"></p>
+<p>task3就抢占了task2。<br>这里可以注意到，IDLE task也被默认分片了，可以通过configIDLE_SHOULD_YIELD=1关闭IDLE task的分片。</p>
+<h3 id="策略2"><a href="#策略2" class="headerlink" title="策略2"></a>策略2</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">configUSE_PREEMPTION = <span class="number">1</span></span><br><span class="line">configUSE_TIME_SLICING = <span class="number">0</span></span><br></pre></td></tr></table></figure>
+<p>仅允许抢占，task会持续运行，直至进入block状态(或者被强占)，其他task才能够运行。</p>
+<p><img src="/images/freertos-3.png"></p>
+<h3 id="策略3"><a href="#策略3" class="headerlink" title="策略3"></a>策略3</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">configUSE_PREEMPTION = <span class="number">0</span></span><br><span class="line">configUSE_TIME_SLICING = <span class="number">1</span></span><br></pre></td></tr></table></figure>
+<p>关闭抢占，但这不符合FreeRTOS的初衷，然后我试了关闭抢占，task只调度了一次，然后就stuck了，<br>调<code>taskYIELD()</code>也不管用，很奇怪。</p>
+<h3 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h3><p>FreeRTOS基于tick机制，<br>tick由中断产生，中断入口是xPortSysTickHandler，在arm上指向SysTick_Handler的中断向量，有硬件时钟产生。</p>
+<p>xPortSysTickHandler主要调用xTaskIncrementTick<br>然后调用<code>portNVIC_INT_CTRL_REG = portNVIC_PENDSVSET_BIT;</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">xPortSysTickHandler</span><span class="params">( <span class="keyword">void</span> )</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">/* The SysTick runs at the lowest interrupt priority, so when this interrupt</span></span><br><span class="line"><span class="comment">    executes all interrupts must be unmasked.  There is therefore no need to</span></span><br><span class="line"><span class="comment">    save and then restore the interrupt mask value as its value is already</span></span><br><span class="line"><span class="comment">    known. */</span></span><br><span class="line">    portDISABLE_INTERRUPTS();</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">/* Increment the RTOS tick. */</span></span><br><span class="line">        <span class="keyword">if</span>( xTaskIncrementTick() != pdFALSE )</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">/* A context switch is required.  Context switching is performed in</span></span><br><span class="line"><span class="comment">            the PendSV interrupt.  Pend the PendSV interrupt. */</span></span><br><span class="line">            portNVIC_INT_CTRL_REG = portNVIC_PENDSVSET_BIT;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    portENABLE_INTERRUPTS();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>xTaskIncrementTick里的大致实现如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">BaseType_t <span class="title">xTaskIncrementTick</span><span class="params">( <span class="keyword">void</span> )</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">TCB_t * pxTCB;</span><br><span class="line">TickType_t xItemValue;</span><br><span class="line">BaseType_t xSwitchRequired = pdFALSE;</span><br><span class="line"> </span><br><span class="line">    <span class="comment">/* Called by the portable layer each time a tick interrupt occurs.</span></span><br><span class="line"><span class="comment">    Increments the tick then checks to see if the new tick value will cause any</span></span><br><span class="line"><span class="comment">    tasks to be unblocked. */</span></span><br><span class="line">    traceTASK_INCREMENT_TICK( xTickCount );</span><br><span class="line">    <span class="keyword">if</span>( uxSchedulerSuspended == ( UBaseType_t ) pdFALSE )</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">/* Minor optimisation.  The tick count cannot change in this</span></span><br><span class="line"><span class="comment">        block. */</span></span><br><span class="line">        <span class="keyword">const</span> TickType_t xConstTickCount = xTickCount + ( TickType_t ) <span class="number">1</span>;</span><br><span class="line"> </span><br><span class="line">        <span class="comment">/* Increment the RTOS tick, switching the delayed and overflowed</span></span><br><span class="line"><span class="comment">        delayed lists if it wraps to 0. */</span></span><br><span class="line">        xTickCount = xConstTickCount;</span><br><span class="line"> </span><br><span class="line">        <span class="keyword">if</span>( xConstTickCount == ( TickType_t ) <span class="number">0U</span> ) <span class="comment">/*lint !e774 'if' does not always evaluate to false as it is looking for an overflow. */</span></span><br><span class="line">        &#123;</span><br><span class="line">            taskSWITCH_DELAYED_LISTS();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">        &#123;</span><br><span class="line">            mtCOVERAGE_TEST_MARKER();</span><br><span class="line">        &#125;</span><br><span class="line"> </span><br><span class="line">        <span class="comment">/* See if this tick has made a timeout expire.  Tasks are stored in</span></span><br><span class="line"><span class="comment">        the queue in the order of their wake time - meaning once one task</span></span><br><span class="line"><span class="comment">        has been found whose block time has not expired there is no need to</span></span><br><span class="line"><span class="comment">        look any further down the list. */</span></span><br><span class="line">        <span class="keyword">if</span>( xConstTickCount &gt;= xNextTaskUnblockTime )</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">for</span>( ;; )</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">if</span>( listLIST_IS_EMPTY( pxDelayedTaskList ) != pdFALSE )</span><br><span class="line">                &#123;</span><br><span class="line">                    <span class="comment">/* The delayed list is empty.  Set xNextTaskUnblockTime</span></span><br><span class="line"><span class="comment">                    to the maximum possible value so it is extremely</span></span><br><span class="line"><span class="comment">                    unlikely that the</span></span><br><span class="line"><span class="comment">                    if( xTickCount &gt;= xNextTaskUnblockTime ) test will pass</span></span><br><span class="line"><span class="comment">                    next time through. */</span></span><br><span class="line">                    xNextTaskUnblockTime = portMAX_DELAY; <span class="comment">/*lint !e961 MISRA exception as the casts are only redundant for some ports. */</span></span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">else</span></span><br><span class="line">                &#123;</span><br><span class="line">                    <span class="comment">/* The delayed list is not empty, get the value of the</span></span><br><span class="line"><span class="comment">                    item at the head of the delayed list.  This is the time</span></span><br><span class="line"><span class="comment">                    at which the task at the head of the delayed list must</span></span><br><span class="line"><span class="comment">                    be removed from the Blocked state. */</span></span><br><span class="line">                    pxTCB = listGET_OWNER_OF_HEAD_ENTRY( pxDelayedTaskList ); <span class="comment">/*lint !e9079 void * is used as this macro is used with timers and co-routines too.  Alignment is known to be fine as the type of the pointer stored and retrieved is the same. */</span></span><br><span class="line">                    xItemValue = listGET_LIST_ITEM_VALUE( &amp;( pxTCB-&gt;xStateListItem ) );</span><br><span class="line"> </span><br><span class="line">                    <span class="keyword">if</span>( xConstTickCount &lt; xItemValue )</span><br><span class="line">                    &#123;</span><br><span class="line">                        <span class="comment">/* It is not time to unblock this item yet, but the</span></span><br><span class="line"><span class="comment">                        item value is the time at which the task at the head</span></span><br><span class="line"><span class="comment">                        of the blocked list must be removed from the Blocked</span></span><br><span class="line"><span class="comment">                        state -    so record the item value in</span></span><br><span class="line"><span class="comment">                        xNextTaskUnblockTime. */</span></span><br><span class="line">                        xNextTaskUnblockTime = xItemValue;</span><br><span class="line">                        <span class="keyword">break</span>; <span class="comment">/*lint !e9011 Code structure here is deedmed easier to understand with multiple breaks. */</span></span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="keyword">else</span></span><br><span class="line">                    &#123;</span><br><span class="line">                        mtCOVERAGE_TEST_MARKER();</span><br><span class="line">                    &#125;</span><br><span class="line"> </span><br><span class="line">                    <span class="comment">/* It is time to remove the item from the Blocked state. */</span></span><br><span class="line">                    ( <span class="keyword">void</span> ) uxListRemove( &amp;( pxTCB-&gt;xStateListItem ) );</span><br><span class="line"> </span><br><span class="line">                    <span class="comment">/* Is the task waiting on an event also?  If so remove</span></span><br><span class="line"><span class="comment">                    it from the event list. */</span></span><br><span class="line">                    <span class="keyword">if</span>( listLIST_ITEM_CONTAINER( &amp;( pxTCB-&gt;xEventListItem ) ) != <span class="literal">NULL</span> )</span><br><span class="line">                    &#123;</span><br><span class="line">                        ( <span class="keyword">void</span> ) uxListRemove( &amp;( pxTCB-&gt;xEventListItem ) );</span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="keyword">else</span></span><br><span class="line">                    &#123;</span><br><span class="line">                        mtCOVERAGE_TEST_MARKER();</span><br><span class="line">                    &#125;</span><br><span class="line"> </span><br><span class="line">                    <span class="comment">/* Place the unblocked task into the appropriate ready</span></span><br><span class="line"><span class="comment">                    list. */</span></span><br><span class="line">                    prvAddTaskToReadyList( pxTCB );</span><br><span class="line"> </span><br><span class="line">                    <span class="comment">/* A task being unblocked cannot cause an immediate</span></span><br><span class="line"><span class="comment">                    context switch if preemption is turned off. */</span></span><br><span class="line">                    <span class="meta">#<span class="meta-keyword">if</span> (  configUSE_PREEMPTION == 1 )</span></span><br><span class="line">                    &#123;</span><br><span class="line">                        <span class="comment">/* Preemption is on, but a context switch should</span></span><br><span class="line"><span class="comment">                        only be performed if the unblocked task has a</span></span><br><span class="line"><span class="comment">                        priority that is equal to or higher than the</span></span><br><span class="line"><span class="comment">                        currently executing task. */</span></span><br><span class="line">                        <span class="keyword">if</span>( pxTCB-&gt;uxPriority &gt;= pxCurrentTCB-&gt;uxPriority )</span><br><span class="line">                        &#123;</span><br><span class="line">                            xSwitchRequired = pdTRUE;</span><br><span class="line">                        &#125;</span><br><span class="line">                        <span class="keyword">else</span></span><br><span class="line">                        &#123;</span><br><span class="line">                            mtCOVERAGE_TEST_MARKER();</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="meta">#<span class="meta-keyword">endif</span> <span class="comment">/* configUSE_PREEMPTION */</span></span></span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"> </span><br><span class="line">        <span class="comment">/* Tasks of equal priority to the currently running task will share</span></span><br><span class="line"><span class="comment">        processing time (time slice) if preemption is on, and the application</span></span><br><span class="line"><span class="comment">        writer has not explicitly turned time slicing off. */</span></span><br><span class="line">        <span class="meta">#<span class="meta-keyword">if</span> ( ( configUSE_PREEMPTION == 1 ) &amp;&amp; ( configUSE_TIME_SLICING == 1 ) )</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span>( listCURRENT_LIST_LENGTH( &amp;( pxReadyTasksLists[ pxCurrentTCB-&gt;uxPriority ] ) ) &gt; ( UBaseType_t ) <span class="number">1</span> )</span><br><span class="line">            &#123;</span><br><span class="line">                xSwitchRequired = pdTRUE;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">            &#123;</span><br><span class="line">                mtCOVERAGE_TEST_MARKER();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="meta">#<span class="meta-keyword">endif</span> <span class="comment">/* ( ( configUSE_PREEMPTION == 1 ) &amp;&amp; ( configUSE_TIME_SLICING == 1 ) ) */</span></span></span><br><span class="line"> </span><br><span class="line">        <span class="meta">#<span class="meta-keyword">if</span> ( configUSE_TICK_HOOK == 1 )</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">/* Guard against the tick hook being called when the pended tick</span></span><br><span class="line"><span class="comment">            count is being unwound (when the scheduler is being unlocked). */</span></span><br><span class="line">            <span class="keyword">if</span>( uxPendedTicks == ( UBaseType_t ) <span class="number">0U</span> )</span><br><span class="line">            &#123;</span><br><span class="line">                vApplicationTickHook();</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">            &#123;</span><br><span class="line">                mtCOVERAGE_TEST_MARKER();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="meta">#<span class="meta-keyword">endif</span> <span class="comment">/* configUSE_TICK_HOOK */</span></span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">        ++uxPendedTicks;</span><br><span class="line"> </span><br><span class="line">        <span class="comment">/* The tick hook gets called at regular intervals, even if the</span></span><br><span class="line"><span class="comment">        scheduler is locked. */</span></span><br><span class="line">        <span class="meta">#<span class="meta-keyword">if</span> ( configUSE_TICK_HOOK == 1 )</span></span><br><span class="line">        &#123;</span><br><span class="line">            vApplicationTickHook();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="meta">#<span class="meta-keyword">if</span> ( configUSE_PREEMPTION == 1 )</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span>( xYieldPending != pdFALSE )</span><br><span class="line">        &#123;</span><br><span class="line">            xSwitchRequired = pdTRUE;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">        &#123;</span><br><span class="line">            mtCOVERAGE_TEST_MARKER();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="meta">#<span class="meta-keyword">endif</span> <span class="comment">/* configUSE_PREEMPTION */</span></span></span><br><span class="line"> </span><br><span class="line">    <span class="keyword">return</span> xSwitchRequired;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>分析如下：</p>
+<blockquote>
+<ol>
+<li>增加tick计数器xTickCount</li>
+<li>根据pxDelayedTaskList中，第一个task的到期时间，判断xTickCount，是否到达</li>
+<li>如果到达了<br> a. 将第一个task从delayList删除<br> b. 删除它的xEventListItem(xEventListItem是用于监听信号量等这些事件的)<br> c. 然后把它加到readyList(prvAddTaskToReadyList( pxTCB ))</li>
+</ol>
+<p>这里有两种允许任务发生切换的条件</p>
+<ol>
+<li>如果这个task优先级比当前执行的task优先级更高，xSwitchRequired = pdTRUE，允许发生任务切换</li>
+<li>如果readyList里的任务优先级大于1，并且时间片轮转开启的话，则允许任务切换xYieldPending != pdFALSE的情况下，这里暂时没明白它的用处，推测是上层应用需要发生一次上下文切换</li>
+</ol>
+</blockquote>
+<p>然后我们看<code>portNVIC_INT_CTRL_REG = portNVIC_PENDSVSET_BIT;</code><br>这一句的目的是什么呢？<br>查阅资料，得知</p>
+<blockquote>
+<p>这一句，根据注释，得知，是配置了这个寄存器，然后发生了上下文切换，这里，我对照的是Cortex-M4，发现是修改了这个地址0xe000ed04上的第28bit，查阅其手册，得知，该bit表示PendSV set-pending bit.<br>这里提到，SystemTick的中断是优先级很高的，但是上下文切换不一定有很高的优先级，所以，如何让高优先级服务低优先级的耗时操作？PendSV为此产生，PendSV表示可延时处理的操作，类似Linux中的tasklet，PendSV被置位后，CPU会等待处理完其他优先级高、紧急的中断事件，处理完后，产生PendSV中断，处理耗时的操作。</p>
+</blockquote>
+<p>所以，最终会执行这个中断处理：<br>xPortPendSVHandler，这里面是汇编的实现</p>
+<p>这个中断，会保存当前task的上下文寄存器，然后调用vTaskSwitchContext完成上下文切换</p>
+<p>那么，vTaskSwitchContext里干了什么呢，翻阅代码，可以得知，函数内部，主要是调用taskSELECT_HIGHEST_PRIORITY_TASK()，<br>从pxReadyTasksLists，挑选优先级最高的taskList，然后赋值给pxCurrentTCB，函数执行完，返回xPortPendSVHandler，<br>继续执行汇编，恢复pxCurrentTCB里的第一个item的寄存器等上下文，完成task的切换。</p>
+<p>以上，是FreeRTOS任务调度的一个简单分析。</p>
+</section>
+    <!-- Tags START -->
+    
+    <div class="tags">
+      <span>Tags:</span>
+      
+  <a href="/tags#Embedding" >
+    <span class="tag-code">Embedding</span>
+  </a>
+
+    </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2019/07/13/BLE-MESH-Gatt/">
+        <span class="nav-arrow">← </span>
+        
+          BLE-MESH-Gatt
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2019/07/31/word2vec-paper-reading/">
+        
+          word2vec_paper_reading
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+    <div class="qrcode">
+      <canvas id="share-qrcode"></canvas>
+      <p class="notice">扫描二维码，分享此文章</p>
+    </div>
+    
+    <!-- 二维码 END -->
+    <!-- Comment -->
+    
+    <div id="gitalk-container"></div>
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+<script type="text/javascript">
+  var gitalk = new Gitalk({
+    clientID: "10e5c6d1b0796f1e6675",
+    clientSecret: "222355b76086e463f2fa56d38d7fe92cbf089774",
+    repo: "gitalk",
+    owner: "shlinym",
+    admin: "shlinym".split(",").filter((l) => l),
+    id: decodeURIComponent(location.pathname),
+    labels: "gitalk".split(",").filter((l) => l),
+    perPage: parseInt("15"),
+    pagerDirection: "last",
+  });
+
+  gitalk.render("gitalk-container");
+</script>
+ 
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+   <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#任务"><span class="toc-nav-text">任务</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#任务状态"><span class="toc-nav-text">任务状态</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#调度策略"><span class="toc-nav-text">调度策略</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#策略1"><span class="toc-nav-text">策略1</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#策略2"><span class="toc-nav-text">策略2</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#策略3"><span class="toc-nav-text">策略3</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#代码实现"><span class="toc-nav-text">代码实现</span></a></li></ol></li></ol>
+    
+  </div>
+</aside> 
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = "https://shlinym.github.io/2019/07/13/FreeRTOS-schedule/";
+    var banner = "";
+    if (banner !== "" && banner !== "undefined" && banner !== "null") {
+      $("#article-banner").css({
+        "background-image": "url(" + banner + ")",
+      });
+    } else {
+      $("#article-banner").geopattern(url);
+    }
+    $(".header").removeClass("fixed-header");
+
+    // error image
+    $(".markdown-content img").on("error", function () {
+      $(this).attr("src", "http://file.muyutech.com/error-img.png");
+      $(this).css({
+        cursor: "default",
+      });
+    });
+
+    // zoom image
+    $(".markdown-content img").on("click", function () {
+      var src = $(this).attr("src");
+      if (src !== "http://file.muyutech.com/error-img.png") {
+        var imageW = $(this).width();
+        var imageH = $(this).height();
+
+        var zoom = (($(window).width() * 0.95) / imageW).toFixed(2);
+        zoom = zoom < 1 ? 1 : zoom;
+        zoom = zoom > 2 ? 2 : zoom;
+        var transY = (($(window).height() - imageH) / 2).toFixed(2);
+
+        $("body").append(
+          '<div class="image-view-wrap"><div class="image-view-inner"><img src="' +
+            src +
+            '" /></div></div>'
+        );
+        $(".image-view-wrap").addClass("wrap-active");
+        $(".image-view-wrap img").css({
+          width: `${imageW}`,
+          transform: `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`,
+        });
+        $("html").css("overflow", "hidden");
+
+        $(".image-view-wrap").on("click", function () {
+          $(this).remove();
+          $("html").attr("style", "");
+        });
+      }
+    });
+  })();
+</script>
+
+
+<script>
+  var qr = new QRious({
+    element: document.getElementById("share-qrcode"),
+    value: document.location.href,
+  });
+</script>
+  
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<footer class="app-footer">
+  <p class="copyright">
+    &copy; 2020 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a href="https://github.com/yanm1ng">yanm1ng</a>
+    <br>
+    访问量<span id="busuanzi_value_site_pv"></span>,
+    访客数<span id="busuanzi_value_site_uv"></span>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+<script src="/js/script.js"></script>
+  </body>
+</html>

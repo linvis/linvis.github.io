@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html>
+  <head><meta name="generator" content="Hexo 3.9.0">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="Lin&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+  <link rel="shortcut icon" type="image/ico" href="images/avatar.png">
+  
+  <title>
+     Redis基本数据结构-2 | Lin&#39;s Blog 
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css"> 
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+   <script src="/js/qrious.js"></script>   
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+ 
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-169360841-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag() {
+    dataLayer.push(arguments);
+  }
+  gtag("js", new Date());
+  gtag("config", "UA-169360841-1");
+</script>
+
+
+</head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png">
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Lin's Blog</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/en/" class="item-link">EN</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/en/" class="menu-link">EN</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>Redis基本数据结构-2</h2>
+  <p class="post-date">2020-06-07</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h2 id="压缩列表"><a href="#压缩列表" class="headerlink" title="压缩列表"></a>压缩列表</h2><h3 id="简述"><a href="#简述" class="headerlink" title="简述"></a>简述</h3><p>压缩列表的本质，是一个数组，只不过在这个数组中，存储了一些数据，指向上一个数据块的下标</p>
+<p>实际上，也可以认为它是一个链表，然后把这条链表数组化了</p>
+<h3 id="数据结构"><a href="#数据结构" class="headerlink" title="数据结构"></a>数据结构</h3><p><img src="http://slinimage.oss-cn-beijing.aliyuncs.com/2020-06-01-064923.png" alt="image-20200601144922564"></p>
+<ul>
+<li><p>zlbytes</p>
+<p>  4字节</p>
+</li>
+<li><p>zltail</p>
+<p>  4 bytes</p>
+</li>
+<li><p>zllen</p>
+<p>  2 len, max 65535</p>
+</li>
+<li><p>entryX</p>
+<p>  压缩列表的元素，可以是字节数组或者整型</p>
+</li>
+<li><p>zlend</p>
+<p>  1个字节，magic num, 0xFF</p>
+</li>
+</ul>
+<p>entry的数据结构</p>
+<p><img src="http://slinimage.oss-cn-beijing.aliyuncs.com/2020-06-01-065412.png" alt="image-20200601145412322"></p>
+<ul>
+<li><p>previous_entry_length</p>
+<p>  表示前一个entry的字节长度，1个或者5个字节，当 前一个的长度小于254，1个字节，否则5个字节(此时第一个字节恒为0xFE，剩余4个字节表示长度)</p>
+<p>  <img src="http://slinimage.oss-cn-beijing.aliyuncs.com/2020-06-01-065638.png" alt="image-20200601145637529"></p>
+</li>
+</ul>
+<p><em>当存储0~12的整数，content被合并进encoding</em></p>
+<p>zlentry</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* We use this function to receive information about a ziplist entry.</span></span><br><span class="line"><span class="comment"> * Note that this is not how the data is actually encoded, is just what we</span></span><br><span class="line"><span class="comment"> * get filled by a function in order to operate more easily. */</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">zlentry</span> &#123;</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> prevrawlensize; <span class="comment">/* Bytes used to encode the previous entry len*/</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> prevrawlen;     <span class="comment">/* Previous entry len. */</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> lensize;        <span class="comment">/* Bytes used to encode this entry type/len.</span></span><br><span class="line"><span class="comment">                                    For example strings have a 1, 2 or 5 bytes</span></span><br><span class="line"><span class="comment">                                    header. Integers always use a single byte.*/</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> len;            <span class="comment">/* Bytes used to represent the actual entry.</span></span><br><span class="line"><span class="comment">                                    For strings this is just the string length</span></span><br><span class="line"><span class="comment">                                    while for integers it is 1, 2, 3, 4, 8 or</span></span><br><span class="line"><span class="comment">                                    0 (for 4 bit immediate) depending on the</span></span><br><span class="line"><span class="comment">                                    number range. */</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> headersize;     <span class="comment">/* prevrawlensize + lensize. */</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> encoding;      <span class="comment">/* Set to ZIP_STR_* or ZIP_INT_* depending on</span></span><br><span class="line"><span class="comment">                                    the entry encoding. However for 4 bits</span></span><br><span class="line"><span class="comment">                                    immediate integers this can assume a range</span></span><br><span class="line"><span class="comment">                                    of values and must be range-checked. */</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> *p;            <span class="comment">/* Pointer to the very start of the entry, that</span></span><br><span class="line"><span class="comment">                                    is, this points to prev-entry-len field. */</span></span><br><span class="line">&#125; zlentry;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>prevrawlensize</p>
+<p>  previous_entry_length字段的长度，1还是5</p>
+</li>
+<li><p>prevrawlen</p>
+<p>  previous_entry_length表示的数据</p>
+</li>
+<li><p>lensize</p>
+<p>  encoding字段的长度</p>
+</li>
+<li><p>len</p>
+<p>  数据(content)的长度</p>
+</li>
+<li><p>headersize</p>
+<p>  previous_entry_length+encoding字段的总长度</p>
+</li>
+<li><p>encoding</p>
+<p>  encoding的编码</p>
+</li>
+</ul>
+<h3 id="创建"><a href="#创建" class="headerlink" title="创建"></a>创建</h3><p>对zlbytes、zltail等初始化，共分配11个字节</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Create a new empty ziplist. */</span></span><br><span class="line"><span class="function"><span class="keyword">unsigned</span> <span class="keyword">char</span> *<span class="title">ziplistNew</span><span class="params">(<span class="keyword">void</span>)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> bytes = ZIPLIST_HEADER_SIZE+ZIPLIST_END_SIZE;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> *zl = zmalloc(bytes);</span><br><span class="line">    ZIPLIST_BYTES(zl) = intrev32ifbe(bytes);</span><br><span class="line">    ZIPLIST_TAIL_OFFSET(zl) = intrev32ifbe(ZIPLIST_HEADER_SIZE);</span><br><span class="line">    ZIPLIST_LENGTH(zl) = <span class="number">0</span>;</span><br><span class="line">    zl[bytes<span class="number">-1</span>] = ZIP_END;</span><br><span class="line">    <span class="keyword">return</span> zl;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="插入"><a href="#插入" class="headerlink" title="插入"></a>插入</h3><ul>
+<li>将元素编码</li>
+<li>重新分配空间</li>
+<li>复制数据</li>
+</ul>
+<p>由于底层是数组形式，这就导致了，只要发生插入，就需要重新分配空间，(为新数据腾出地方)并且复制剩余的数据</p>
+<p><img src="http://slinimage.oss-cn-beijing.aliyuncs.com/2020-06-01-150323.png" alt="image-20200601230322860"></p>
+<p>有几种基本的情况</p>
+<ul>
+<li><p>P0/P2</p>
+<p>  很明显，直接插入</p>
+</li>
+<li><p>P1</p>
+<p>  找到位置，扩容(realloc)，move，插入，更新entryX+1的previous_entry_length</p>
+</li>
+</ul>
+<h3 id="删除"><a href="#删除" class="headerlink" title="删除"></a>删除</h3><p>插入的反向操作</p>
+<p>删除，move，realloc</p>
+<h3 id="遍历"><a href="#遍历" class="headerlink" title="遍历"></a>遍历</h3><p>支持从前往后遍历，和从后往前遍历</p>
+<ul>
+<li><p>从前往后</p>
+<p>  previous_entry_length占1个或5个字节(5个的时候第一个字节是0xFE)</p>
+<p>  encoding，1-5个字节，且看前四个比特就可以区分，同时从encoding里也可以获取content的长度</p>
+<p>  这意味着可以从前往后遍历</p>
+</li>
+<li><p>从后往前</p>
+<p>  根据previous_entry_length就可以实现</p>
+</li>
+</ul>
+<h3 id="连锁更新"><a href="#连锁更新" class="headerlink" title="连锁更新"></a>连锁更新</h3><p>当发生插入到两个entry中间，或者从中间删除的时候，</p>
+<p>就导致下一个entry的previous_entry_length要更新，一种可能的情况是，下一个previous_entry_length原本占用一个字节，然后插入数据1000的长度，导致要扩充到5个字节，从而引起下一个entry的总长度的变化</p>
+<p>对于下图的情况，将导致后面所有的entry都要更新(不过这种概率很低，redis没有为避免这种情况采取措施)</p>
+<p><img src="http://slinimage.oss-cn-beijing.aliyuncs.com/2020-06-01-151952.png" alt="image-20200601231951577"></p>
+<h2 id="字典"><a href="#字典" class="headerlink" title="字典"></a>字典</h2><p>redis字节实现了一套字典(hash)，用的是链表定址法防止冲突</p>
+<p>redis是靠数组，hash计算出一个index</p>
+<h3 id="数据结构-1"><a href="#数据结构-1" class="headerlink" title="数据结构"></a>数据结构</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">dictEntry</span> &#123;</span></span><br><span class="line">    <span class="keyword">void</span> *key;</span><br><span class="line">    <span class="keyword">union</span> &#123;</span><br><span class="line">        <span class="keyword">void</span> *val;</span><br><span class="line">        <span class="keyword">uint64_t</span> u64;</span><br><span class="line">        <span class="keyword">int64_t</span> s64;</span><br><span class="line">        <span class="keyword">double</span> d;</span><br><span class="line">    &#125; v;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">dictEntry</span> *<span class="title">next</span>;</span></span><br><span class="line">&#125; dictEntry;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">dictht</span> &#123;</span></span><br><span class="line">    dictEntry **table;</span><br><span class="line">    <span class="comment">//table大小</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> size;</span><br><span class="line">    <span class="comment">// 掩码= size - 1</span></span><br><span class="line">    <span class="comment">// 计算hash后的index，index = hash % sizemask</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> sizemask;</span><br><span class="line">    <span class="comment">// 用了多少</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> used;</span><br><span class="line">&#125; dictht;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">dict</span> &#123;</span></span><br><span class="line">    dictType *type;</span><br><span class="line">    <span class="keyword">void</span> *privdata; <span class="comment">//私有数据</span></span><br><span class="line">    dictht ht[<span class="number">2</span>];</span><br><span class="line">    <span class="keyword">long</span> rehashidx; <span class="comment">/* rehashing not in progress if rehashidx == -1 */</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> iterators; <span class="comment">/* number of iterators currently running */</span></span><br><span class="line">&#125; dict;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>dictht</p>
+<p>  hash数组</p>
+</li>
+<li><p>dictEntry</p>
+<p>  存放key，一个union，如果是数字，可以直接存数据，否则存指针</p>
+<p>  next是当hash冲突时，存放下一个entry的</p>
+</li>
+</ul>
+<p>dictType，存放hash的callback</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">dictType</span> &#123;</span></span><br><span class="line">    <span class="keyword">uint64_t</span> (*hashFunction)(<span class="keyword">const</span> <span class="keyword">void</span> *key);</span><br><span class="line">    <span class="keyword">void</span> *(*keyDup)(<span class="keyword">void</span> *privdata, <span class="keyword">const</span> <span class="keyword">void</span> *key);</span><br><span class="line">    <span class="keyword">void</span> *(*valDup)(<span class="keyword">void</span> *privdata, <span class="keyword">const</span> <span class="keyword">void</span> *obj);</span><br><span class="line">    <span class="keyword">int</span> (*keyCompare)(<span class="keyword">void</span> *privdata, <span class="keyword">const</span> <span class="keyword">void</span> *key1, <span class="keyword">const</span> <span class="keyword">void</span> *key2);</span><br><span class="line">    <span class="keyword">void</span> (*keyDestructor)(<span class="keyword">void</span> *privdata, <span class="keyword">void</span> *key);</span><br><span class="line">    <span class="keyword">void</span> (*valDestructor)(<span class="keyword">void</span> *privdata, <span class="keyword">void</span> *obj);</span><br><span class="line">&#125; dictType;</span><br></pre></td></tr></table></figure>
+<p>dictht ht[2]，有两个，两个的目的是扩容实现摊还复制的</p>
+<h3 id="创建-1"><a href="#创建-1" class="headerlink" title="创建"></a>创建</h3><p>没什么好看的，创建dict的数据结构，table都是NULL</p>
+<h3 id="添加元素"><a href="#添加元素" class="headerlink" title="添加元素"></a>添加元素</h3><ul>
+<li>dictFind检查key是否存在，存在直接覆盖</li>
+<li>dictAdd加入键值对</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Add an element to the target hash table */</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">dictAdd</span><span class="params">(dict *d, <span class="keyword">void</span> *key, <span class="keyword">void</span> *val)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">//如果key存在返回NULL，不存在创建一个entry并返回</span></span><br><span class="line">    dictEntry *entry = dictAddRaw(d,key,<span class="literal">NULL</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!entry) <span class="keyword">return</span> DICT_ERR;</span><br><span class="line">    dictSetVal(d, entry, val);</span><br><span class="line">    <span class="keyword">return</span> DICT_OK;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到dictAddRaw，根据hash计算出index，并且将entry放到table的index上</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">dictEntry *<span class="title">dictAddRaw</span><span class="params">(dict *d, <span class="keyword">void</span> *key, dictEntry **existing)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">long</span> index;</span><br><span class="line">    dictEntry *entry;</span><br><span class="line">    dictht *ht;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (dictIsRehashing(d)) _dictRehashStep(d);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Get the index of the new element, or -1 if</span></span><br><span class="line"><span class="comment">     * the element already exists. */</span></span><br><span class="line">    <span class="keyword">if</span> ((index = _dictKeyIndex(d, key, dictHashKey(d,key), existing)) == <span class="number">-1</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Allocate the memory and store the new entry.</span></span><br><span class="line"><span class="comment">     * Insert the element in top, with the assumption that in a database</span></span><br><span class="line"><span class="comment">     * system it is more likely that recently added entries are accessed</span></span><br><span class="line"><span class="comment">     * more frequently. */</span></span><br><span class="line">    ht = dictIsRehashing(d) ? &amp;d-&gt;ht[<span class="number">1</span>] : &amp;d-&gt;ht[<span class="number">0</span>];</span><br><span class="line">    entry = zmalloc(<span class="keyword">sizeof</span>(*entry));</span><br><span class="line">    entry-&gt;next = ht-&gt;table[index];</span><br><span class="line">    ht-&gt;table[index] = entry;</span><br><span class="line">    ht-&gt;used++;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Set the hash entry fields. */</span></span><br><span class="line">    dictSetKey(d, entry, key);</span><br><span class="line">    <span class="keyword">return</span> entry;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="扩容"><a href="#扩容" class="headerlink" title="扩容"></a>扩容</h3><p>当hash table超过装载因子后，就会扩容</p>
+<p>扩容发生在_dictKeyIndex中</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">long</span> _dictKeyIndex(dict *d, <span class="keyword">const</span> <span class="keyword">void</span> *key, <span class="keyword">uint64_t</span> hash, dictEntry **existing)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> idx, table;</span><br><span class="line">    dictEntry *he;</span><br><span class="line">    <span class="keyword">if</span> (existing) *existing = <span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Expand the hash table if needed */</span></span><br><span class="line">    <span class="keyword">if</span> (_dictExpandIfNeeded(d) == DICT_ERR)</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    <span class="keyword">for</span> (table = <span class="number">0</span>; table &lt;= <span class="number">1</span>; table++) &#123;</span><br><span class="line">        idx = hash &amp; d-&gt;ht[table].sizemask;</span><br><span class="line">        <span class="comment">/* Search if this slot does not already contain the given key */</span></span><br><span class="line">        he = d-&gt;ht[table].table[idx];</span><br><span class="line">        <span class="keyword">while</span>(he) &#123;</span><br><span class="line">            <span class="keyword">if</span> (key==he-&gt;key || dictCompareKeys(d, key, he-&gt;key)) &#123;</span><br><span class="line">                <span class="keyword">if</span> (existing) *existing = he;</span><br><span class="line">                <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            he = he-&gt;next;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (!dictIsRehashing(d)) <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> idx;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>通过_dictExpandIfNeeded，判断是否需要扩容</p>
+<p>扩容后字典和掩码都会发生变化</p>
+<p>redis采用的渐进式rehash，rehash后，会把rehashidx标记为-1</p>
+<p>刚开始使用ht[0]，扩容后，对于旧数据，并不是一次性复制到扩容后的数据中，而是采用如下策略：</p>
+<ul>
+<li>新数据将被加入到ht[1]中</li>
+<li>旧数据被访问的时候，从ht[0]中删除，放到ht[1]中</li>
+<li>所有旧数据从ht[0]中删除，swap  ht[0], ht[1]</li>
+</ul>
+<p>摊还分析，时间复杂度是$O(1)$</p>
+<h3 id="查找"><a href="#查找" class="headerlink" title="查找"></a>查找</h3><p>从两个table里一次查找</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">dictEntry *<span class="title">dictFind</span><span class="params">(dict *d, <span class="keyword">const</span> <span class="keyword">void</span> *key)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    dictEntry *he;</span><br><span class="line">    <span class="keyword">uint64_t</span> h, idx, table;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (d-&gt;ht[<span class="number">0</span>].used + d-&gt;ht[<span class="number">1</span>].used == <span class="number">0</span>) <span class="keyword">return</span> <span class="literal">NULL</span>; <span class="comment">/* dict is empty */</span></span><br><span class="line">    <span class="keyword">if</span> (dictIsRehashing(d)) _dictRehashStep(d);</span><br><span class="line">    h = dictHashKey(d, key);</span><br><span class="line">    <span class="keyword">for</span> (table = <span class="number">0</span>; table &lt;= <span class="number">1</span>; table++) &#123;</span><br><span class="line">        idx = h &amp; d-&gt;ht[table].sizemask;</span><br><span class="line">        he = d-&gt;ht[table].table[idx];</span><br><span class="line">        <span class="keyword">while</span>(he) &#123;</span><br><span class="line">            <span class="keyword">if</span> (key==he-&gt;key || dictCompareKeys(d, key, he-&gt;key))</span><br><span class="line">                <span class="keyword">return</span> he;</span><br><span class="line">            he = he-&gt;next;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 如果没有rehash，直接返回</span></span><br><span class="line">        <span class="keyword">if</span> (!dictIsRehashing(d)) <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="删除-1"><a href="#删除-1" class="headerlink" title="删除"></a>删除</h3><p>删除会导致缩容，反向扩容，也是调用dictExpand，和扩容操作一致</p>
+<h3 id="全遍历"><a href="#全遍历" class="headerlink" title="全遍历"></a>全遍历</h3><p>遍历的期间，可能会对字典进行增删改查，从而导致rehash，有可能发生ht[0]读了一遍数据，rehash后ht[1]又读了一遍数据</p>
+<p>redis提供了迭代器保证遍历的正确性</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">dictIterator</span> &#123;</span></span><br><span class="line">    dict *d;</span><br><span class="line">    <span class="keyword">long</span> index;</span><br><span class="line">    <span class="keyword">int</span> table, safe;</span><br><span class="line">    dictEntry *entry, *nextEntry;</span><br><span class="line">    <span class="comment">/* unsafe iterator fingerprint for misuse detection. */</span></span><br><span class="line">    <span class="keyword">long</span> <span class="keyword">long</span> fingerprint;</span><br><span class="line">&#125; dictIterator;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>普通迭代器</p>
+<p>  fingerprint记录当前字典的状态，之后迭代都检查fingerprint是否发生变化，如果变化了，则抛异常</p>
+<p>  普通迭代器需要严格确保字典没有发生变化，它只遍历数据</p>
+<p>  dictNext</p>
+</li>
+<li><p>安全迭代器</p>
+<p>  遍历的同时可以删除数据</p>
+<p>  通过dictNext遍历，安全迭代器限制了rehash(暂停了rehash)，来确保字典的正确性</p>
+</li>
+</ul>
+<p>这两种都是全遍历</p>
+<h3 id="间接遍历"><a href="#间接遍历" class="headerlink" title="间接遍历"></a>间接遍历</h3><p>dictScan，这个API是可以再遍历的时候进行rehash的</p>
+<p>有三种情况</p>
+<ul>
+<li><ol>
+<li>迭代开始到结束，没有rehash</li>
+</ol>
+</li>
+<li><ol>
+<li>迭代开始到结束，进行扩容或者缩容操作，且敲好为两次迭代间隔期间完成了rehash操作</li>
+</ol>
+</li>
+<li><ol>
+<li>迭代开始到结束，某次或某几次迭代，进行了rehash操作</li>
+</ol>
+</li>
+</ul>
+<p>第一种，只需要遍历ht[0]</p>
+<p>第二种，这个意思是，ht[0]原先size是4，resha完成，ht[0]被换成了8</p>
+<p>redis采用了一个很神奇的算法</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">v |= ~m0;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* Increment the reverse cursor */</span></span><br><span class="line">v = rev(v);</span><br><span class="line">v++;</span><br><span class="line">v = rev(v);</span><br></pre></td></tr></table></figure>
+<p>简单说一下，就比如，size是4(sizemash=3)，已经遍历了0和2，然后扩容到8(sizemask=7)，那么，经过rehash后，游标为0、2的数据，可能会分布到0|4、2|6上，那么扩容后的4，6就不需要在地带了</p>
+<p><img src="http://slinimage.oss-cn-beijing.aliyuncs.com/2020-06-01-161305.png" alt="image-20200602001305166"></p>
+<p>第三种，没rehash完，遍历ht[0]和ht[1]</p>
+</section>
+    <!-- Tags START -->
+    
+    <div class="tags">
+      <span>Tags:</span>
+      
+  <a href="/tags#redis源码阅读" >
+    <span class="tag-code">redis源码阅读</span>
+  </a>
+
+  <a href="/tags#数据库" >
+    <span class="tag-code">数据库</span>
+  </a>
+
+    </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2020/06/07/Redis基本数据结构-1/">
+        <span class="nav-arrow">← </span>
+        
+          Redis基本数据结构-1
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2020/06/07/Redis基本数据结构-3/">
+        
+          Redis基本数据结构-3
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+    <div class="qrcode">
+      <canvas id="share-qrcode"></canvas>
+      <p class="notice">扫描二维码，分享此文章</p>
+    </div>
+    
+    <!-- 二维码 END -->
+    <!-- Comment -->
+    
+    <div id="gitalk-container"></div>
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+<script type="text/javascript">
+  var gitalk = new Gitalk({
+    clientID: "10e5c6d1b0796f1e6675",
+    clientSecret: "222355b76086e463f2fa56d38d7fe92cbf089774",
+    repo: "gitalk",
+    owner: "shlinym",
+    admin: "shlinym".split(",").filter((l) => l),
+    id: decodeURIComponent(location.pathname),
+    labels: "gitalk".split(",").filter((l) => l),
+    perPage: parseInt("15"),
+    pagerDirection: "last",
+  });
+
+  gitalk.render("gitalk-container");
+</script>
+ 
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+   <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#压缩列表"><span class="toc-nav-text">压缩列表</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#简述"><span class="toc-nav-text">简述</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#数据结构"><span class="toc-nav-text">数据结构</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#创建"><span class="toc-nav-text">创建</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#插入"><span class="toc-nav-text">插入</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#删除"><span class="toc-nav-text">删除</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#遍历"><span class="toc-nav-text">遍历</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#连锁更新"><span class="toc-nav-text">连锁更新</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#字典"><span class="toc-nav-text">字典</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#数据结构-1"><span class="toc-nav-text">数据结构</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#创建-1"><span class="toc-nav-text">创建</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#添加元素"><span class="toc-nav-text">添加元素</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#扩容"><span class="toc-nav-text">扩容</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#查找"><span class="toc-nav-text">查找</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#删除-1"><span class="toc-nav-text">删除</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#全遍历"><span class="toc-nav-text">全遍历</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#间接遍历"><span class="toc-nav-text">间接遍历</span></a></li></ol></li></ol>
+    
+  </div>
+</aside> 
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = "https://shlinym.github.io/en/2020/06/07/Redis基本数据结构-2/";
+    var banner = "";
+    if (banner !== "" && banner !== "undefined" && banner !== "null") {
+      $("#article-banner").css({
+        "background-image": "url(" + banner + ")",
+      });
+    } else {
+      $("#article-banner").geopattern(url);
+    }
+    $(".header").removeClass("fixed-header");
+
+    // error image
+    $(".markdown-content img").on("error", function () {
+      $(this).attr("src", "http://file.muyutech.com/error-img.png");
+      $(this).css({
+        cursor: "default",
+      });
+    });
+
+    // zoom image
+    $(".markdown-content img").on("click", function () {
+      var src = $(this).attr("src");
+      if (src !== "http://file.muyutech.com/error-img.png") {
+        var imageW = $(this).width();
+        var imageH = $(this).height();
+
+        var zoom = (($(window).width() * 0.95) / imageW).toFixed(2);
+        zoom = zoom < 1 ? 1 : zoom;
+        zoom = zoom > 2 ? 2 : zoom;
+        var transY = (($(window).height() - imageH) / 2).toFixed(2);
+
+        $("body").append(
+          '<div class="image-view-wrap"><div class="image-view-inner"><img src="' +
+            src +
+            '" /></div></div>'
+        );
+        $(".image-view-wrap").addClass("wrap-active");
+        $(".image-view-wrap img").css({
+          width: `${imageW}`,
+          transform: `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`,
+        });
+        $("html").css("overflow", "hidden");
+
+        $(".image-view-wrap").on("click", function () {
+          $(this).remove();
+          $("html").attr("style", "");
+        });
+      }
+    });
+  })();
+</script>
+
+
+<script>
+  var qr = new QRious({
+    element: document.getElementById("share-qrcode"),
+    value: document.location.href,
+  });
+</script>
+  
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<footer class="app-footer">
+  <p class="copyright">
+    &copy; 2020 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a href="https://github.com/yanm1ng">yanm1ng</a>
+    <br>
+    访问量<span id="busuanzi_value_site_pv"></span>,
+    访客数<span id="busuanzi_value_site_uv"></span>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+<script src="/js/script.js"></script>
+  </body>
+</html>

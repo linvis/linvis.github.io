@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html>
+  <head><meta name="generator" content="Hexo 3.9.0">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="Lin&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+  <link rel="shortcut icon" type="image/ico" href="images/avatar.png">
+  
+  <title>
+     Redis的数据类型 | Lin&#39;s Blog 
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css"> 
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+   <script src="/js/qrious.js"></script>   
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+ 
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-169360841-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag() {
+    dataLayer.push(arguments);
+  }
+  gtag("js", new Date());
+  gtag("config", "UA-169360841-1");
+</script>
+
+
+</head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png">
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Lin's Blog</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/en/" class="item-link">EN</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/en/" class="menu-link">EN</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>Redis的数据类型</h2>
+  <p class="post-date">2020-04-11</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h1 id="Redis的数据类型"><a href="#Redis的数据类型" class="headerlink" title="Redis的数据类型"></a>Redis的数据类型</h1><h2 id="string"><a href="#string" class="headerlink" title="string"></a>string</h2><h3 id="基本操作"><a href="#基本操作" class="headerlink" title="基本操作"></a>基本操作</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">set</span> key value</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">get key</span><br></pre></td></tr></table></figure>
+<h3 id="过期时间"><a href="#过期时间" class="headerlink" title="过期时间"></a>过期时间</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 单位是秒</span></span><br><span class="line"><span class="built_in">set</span> a b ex 10</span><br><span class="line"></span><br><span class="line"><span class="comment"># 毫秒</span></span><br><span class="line"><span class="built_in">set</span> a b px 1000</span><br><span class="line"></span><br><span class="line"><span class="comment"># s</span></span><br><span class="line">expire a 10</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看过期时间</span></span><br><span class="line">ttl a</span><br></pre></td></tr></table></figure>
+<h3 id="查询长度"><a href="#查询长度" class="headerlink" title="查询长度"></a>查询长度</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">strlen key</span><br></pre></td></tr></table></figure>
+<h3 id="字符串操作"><a href="#字符串操作" class="headerlink" title="字符串操作"></a>字符串操作</h3><p>如果value是数字，还可以执行基本的数学运算</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">set</span> a 1</span><br><span class="line"></span><br><span class="line">incrby a 5</span><br><span class="line"><span class="comment"># a = 6</span></span><br></pre></td></tr></table></figure>
+<p>获取子串</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># a[2:5]</span></span><br><span class="line">getrange a 2 5</span><br></pre></td></tr></table></figure>
+<p>这是一个前闭后闭的操作，比如 a = 1234567</p>
+<p>上述操作会获得 3456</p>
+<p>覆盖子串</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">setrange a 2 abcdef</span><br></pre></td></tr></table></figure>
+<p>相当于a[0:2] + newval，这里的a[0:2]是前开后闭</p>
+<p>追加子串</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">append a abcdef</span><br></pre></td></tr></table></figure>
+<h3 id="基本实现"><a href="#基本实现" class="headerlink" title="基本实现"></a>基本实现</h3><p>就是往db(哈希表)里插数据</p>
+<h2 id="list"><a href="#list" class="headerlink" title="list"></a>list</h2><p>redis使用双向链表存储list的元素，所以不是数组，因为是链表，查找能力弱，如果数据量很大，时间复杂度就会升高</p>
+<p>支持负下标，和python一样</p>
+<p>list不能用set/get操作</p>
+<h3 id="list增删操作"><a href="#list增删操作" class="headerlink" title="list增删操作"></a>list增删操作</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 从尾部增加</span></span><br><span class="line">rpush key val1 val2</span><br><span class="line"></span><br><span class="line"><span class="comment"># 从头部增加</span></span><br><span class="line">lpush key val1 val</span><br><span class="line"></span><br><span class="line">lpop key</span><br><span class="line"></span><br><span class="line">rpop key</span><br></pre></td></tr></table></figure>
+<p>这四种操作，不同组合，可以构成队列，栈等数据结构</p>
+<h3 id="获取list长度"><a href="#获取list长度" class="headerlink" title="获取list长度"></a>获取list长度</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">llen key</span><br></pre></td></tr></table></figure>
+<h3 id="随机读"><a href="#随机读" class="headerlink" title="随机读"></a>随机读</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 读a[1]</span></span><br><span class="line">lindex a 1</span><br><span class="line"></span><br><span class="line"><span class="comment"># a[0:]</span></span><br><span class="line">lrange a 0 -1</span><br><span class="line"></span><br><span class="line"><span class="comment"># a [1:3]  a[1] a[2] a[3]</span></span><br><span class="line">larnge a 1 3</span><br></pre></td></tr></table></figure>
+<h3 id="修改元素"><a href="#修改元素" class="headerlink" title="修改元素"></a>修改元素</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># a[1] = newval</span></span><br><span class="line">lset a 1 newval</span><br><span class="line"></span><br><span class="line"><span class="comment"># 在java前/后插入python</span></span><br><span class="line"><span class="comment"># rpust a go java c</span></span><br><span class="line">linsert a before/after java python</span><br></pre></td></tr></table></figure>
+<p><em>linsert为什么不用index？</em></p>
+<p>分布式环境中，列表的元素会频繁的变动，index也会随之变动，但是val不会</p>
+<h3 id="删除特定元素"><a href="#删除特定元素" class="headerlink" title="删除特定元素"></a>删除特定元素</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1表示最大删除一个元素</span></span><br><span class="line">lrem a 1 java</span><br></pre></td></tr></table></figure>
+<p>也是靠值删除</p>
+<h3 id="定长列表"><a href="#定长列表" class="headerlink" title="定长列表"></a>定长列表</h3><p>比如top10等等</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&gt; rpush ireader go java python javascript ruby erlang rust cpp</span><br><span class="line">(<span class="built_in">integer</span>) 8</span><br><span class="line">&gt; ltrim ireader -3 -1</span><br><span class="line">OK</span><br><span class="line">&gt; lrange ireader 0 -1</span><br><span class="line">1) <span class="string">"erlang"</span></span><br><span class="line">2) <span class="string">"rust"</span></span><br><span class="line">3) <span class="string">"cpp"</span></span><br></pre></td></tr></table></figure>
+<h3 id="list的基本实现"><a href="#list的基本实现" class="headerlink" title="list的基本实现"></a>list的基本实现</h3><p>redis采用了quicklist的数据结构，这是一个双向链表，而和不同的双向链表不同的是，链表节点上存储的并不是数据，而是ziplist，ziplist是为了解决链表造成的存储碎片化，一个quicklistNode上，存储一个ziplist，最大可以存16个item，这些ziplist的item在内存存储上，是紧挨着的。</p>
+<p>简单类比，ziplist相当于一个内存池，并且具有压缩编码功能。</p>
+<p>典型的是，如果value是整数，ziplist会把字符转成整型，并且根据整数的大小，选择不同的整型存储(省内存)</p>
+<p><a href="http://zhangtielei.com/posts/blog-redis-ziplist.html" target="_blank" rel="noopener">ziplist原理</a></p>
+<h2 id="hash"><a href="#hash" class="headerlink" title="hash"></a>hash</h2><p>等价与python中的dict</p>
+<h3 id="增加元素"><a href="#增加元素" class="headerlink" title="增加元素"></a>增加元素</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">hset key field1 val1 field2 val2</span><br><span class="line">hmset key field1 val1 field2 val2</span><br></pre></td></tr></table></figure>
+<h3 id="获取元素"><a href="#获取元素" class="headerlink" title="获取元素"></a>获取元素</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">hget key field1</span><br><span class="line">hmget key field1 field2</span><br><span class="line">hgetall key</span><br><span class="line">hkeys key</span><br><span class="line">hvals key</span><br></pre></td></tr></table></figure>
+<h3 id="删除元素"><a href="#删除元素" class="headerlink" title="删除元素"></a>删除元素</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">hdel key field</span><br><span class="line">hdel key field1 field2</span><br></pre></td></tr></table></figure>
+<h3 id="判断元素是否存在"><a href="#判断元素是否存在" class="headerlink" title="判断元素是否存在"></a>判断元素是否存在</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">hexists key field</span><br><span class="line"><span class="comment"># 1 - yes, 0 - not</span></span><br></pre></td></tr></table></figure>
+<h3 id="计数器"><a href="#计数器" class="headerlink" title="计数器"></a>计数器</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">hincrby key field num</span><br><span class="line"><span class="comment"># hincrby language go 2</span></span><br></pre></td></tr></table></figure>
+<p>这个value需要是整数</p>
+<h3 id="hash的基本实现"><a href="#hash的基本实现" class="headerlink" title="hash的基本实现"></a>hash的基本实现</h3><p>hash，首先会用ziplist存，会存两个信息，第一个是field，紧挨着下一块内存会存value</p>
+<p>当ziplist的大小超过一个阈值后，默认512，就会把ziplist转成dict，读取更高效</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> OBJ_HASH_MAX_ZIPLIST_ENTRIES 512</span></span><br><span class="line"></span><br><span class="line">hash_max_ziplist_entries</span><br></pre></td></tr></table></figure>
+<h3 id="dict的实现"><a href="#dict的实现" class="headerlink" title="dict的实现"></a>dict的实现</h3><p>redis采用了哈希表的方式，即一个大表，hash值%size的方式维护索引，为了避免碰撞，采用链表定址法，hash值相同的挂链表索引。</p>
+<p>装载过小就会扩容，过大会缩容。扩容不是一次性copy old to new。而是摊还copy(扩容后先查新，没有就查旧，然后copy旧到新)</p>
+<h2 id="set"><a href="#set" class="headerlink" title="set"></a>set</h2><p>介于list和hash之间，set不允许有重复的value出现</p>
+<h3 id="增加元素-1"><a href="#增加元素-1" class="headerlink" title="增加元素"></a>增加元素</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">sadd key val1 val2 val3</span><br><span class="line"></span><br><span class="line"><span class="comment"># 列出所有</span></span><br><span class="line">smembers key</span><br><span class="line"></span><br><span class="line"><span class="comment"># 读取长度</span></span><br><span class="line">scard key</span><br><span class="line"></span><br><span class="line"><span class="comment"># 随机读取一个元素</span></span><br><span class="line">srandmember key</span><br></pre></td></tr></table></figure>
+<h3 id="删除元素-1"><a href="#删除元素-1" class="headerlink" title="删除元素"></a>删除元素</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">srem key val1 val2</span><br><span class="line"></span><br><span class="line"><span class="comment"># 随机删除一个元素</span></span><br><span class="line">spop key</span><br></pre></td></tr></table></figure>
+<h3 id="判断元素是否存在-1"><a href="#判断元素是否存在-1" class="headerlink" title="判断元素是否存在"></a>判断元素是否存在</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sismember key val</span><br><span class="line"><span class="comment"># 1 - yes, 0 - no</span></span><br></pre></td></tr></table></figure>
+<h3 id="set的基本实现"><a href="#set的基本实现" class="headerlink" title="set的基本实现"></a>set的基本实现</h3><p>dict的key</p>
+<p>如果val都是int，则用了intset的实现方式，string转int，用数组存整数(类似ziplist)，并且通过二分，保证插入是有序的，查找是二分查找</p>
+<h2 id="zset-sortset"><a href="#zset-sortset" class="headerlink" title="zset(sortset)"></a>zset(sortset)</h2><p>set的基础上，每个val都有一个权重score，内部按照score排序</p>
+<p>可以理解成sort  set</p>
+<h3 id="增删元素"><a href="#增删元素" class="headerlink" title="增删元素"></a>增删元素</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">zadd a 2.0 val1 3.0 val2</span><br><span class="line"></span><br><span class="line"><span class="comment"># 长度</span></span><br><span class="line">zcard a</span><br><span class="line"></span><br><span class="line"><span class="comment"># 删除元素</span></span><br><span class="line">zrem a val1 val2</span><br></pre></td></tr></table></figure>
+<h3 id="score排序"><a href="#score排序" class="headerlink" title="score排序"></a>score排序</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 获取val的score</span></span><br><span class="line">zscore a val1</span><br><span class="line"></span><br><span class="line"><span class="comment"># 获取排序后的index，score小的在前</span></span><br><span class="line">zrank a val1</span><br><span class="line"></span><br><span class="line"><span class="comment"># 倒序index</span></span><br><span class="line">zrevrank a val1</span><br><span class="line"></span><br><span class="line"><span class="comment"># 获取所有元素</span></span><br><span class="line">zrange a 0 -1 </span><br><span class="line">zrange a 0 -1 withscores</span><br><span class="line">zrevrange a 0 -1 withscores</span><br><span class="line"></span><br><span class="line"><span class="comment"># 范围获取</span></span><br><span class="line"><span class="comment"># 获取前6</span></span><br><span class="line">zrangebyscore a 0 5</span><br><span class="line"><span class="comment"># 所有</span></span><br><span class="line">zrangebyscore ireader -inf +inf withscores</span><br><span class="line"><span class="comment"># 倒序</span></span><br><span class="line">zrevrangebyscore ireader +inf -inf withscores</span><br><span class="line"></span><br><span class="line"><span class="comment"># 范围删除</span></span><br><span class="line"><span class="comment"># score在0 - 1的都删掉</span></span><br><span class="line"> zremrangebyrank a 0 1</span><br><span class="line"> zremrangebyscore ireader -inf 4</span><br></pre></td></tr></table></figure>
+<h3 id="zset的基本实现"><a href="#zset的基本实现" class="headerlink" title="zset的基本实现"></a>zset的基本实现</h3><p>链表存数据，跳表实现排序</p>
+</section>
+    <!-- Tags START -->
+    
+    <div class="tags">
+      <span>Tags:</span>
+      
+  <a href="/tags#Backend" >
+    <span class="tag-code">Backend</span>
+  </a>
+
+    </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2020/04/05/个人网站部署https/">
+        <span class="nav-arrow">← </span>
+        
+          个人网站部署https
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2020/06/07/hexo配置gitalk/">
+        
+          hexo配置gitalk
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+    <div class="qrcode">
+      <canvas id="share-qrcode"></canvas>
+      <p class="notice">扫描二维码，分享此文章</p>
+    </div>
+    
+    <!-- 二维码 END -->
+    <!-- Comment -->
+    
+    <div id="gitalk-container"></div>
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+<script type="text/javascript">
+  var gitalk = new Gitalk({
+    clientID: "10e5c6d1b0796f1e6675",
+    clientSecret: "222355b76086e463f2fa56d38d7fe92cbf089774",
+    repo: "gitalk",
+    owner: "shlinym",
+    admin: "shlinym".split(",").filter((l) => l),
+    id: decodeURIComponent(location.pathname),
+    labels: "gitalk".split(",").filter((l) => l),
+    perPage: parseInt("15"),
+    pagerDirection: "last",
+  });
+
+  gitalk.render("gitalk-container");
+</script>
+ 
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+   <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#Redis的数据类型"><span class="toc-nav-text">Redis的数据类型</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#string"><span class="toc-nav-text">string</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#基本操作"><span class="toc-nav-text">基本操作</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#过期时间"><span class="toc-nav-text">过期时间</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#查询长度"><span class="toc-nav-text">查询长度</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#字符串操作"><span class="toc-nav-text">字符串操作</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#基本实现"><span class="toc-nav-text">基本实现</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#list"><span class="toc-nav-text">list</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#list增删操作"><span class="toc-nav-text">list增删操作</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#获取list长度"><span class="toc-nav-text">获取list长度</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#随机读"><span class="toc-nav-text">随机读</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#修改元素"><span class="toc-nav-text">修改元素</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#删除特定元素"><span class="toc-nav-text">删除特定元素</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#定长列表"><span class="toc-nav-text">定长列表</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#list的基本实现"><span class="toc-nav-text">list的基本实现</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#hash"><span class="toc-nav-text">hash</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#增加元素"><span class="toc-nav-text">增加元素</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#获取元素"><span class="toc-nav-text">获取元素</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#删除元素"><span class="toc-nav-text">删除元素</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#判断元素是否存在"><span class="toc-nav-text">判断元素是否存在</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#计数器"><span class="toc-nav-text">计数器</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#hash的基本实现"><span class="toc-nav-text">hash的基本实现</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#dict的实现"><span class="toc-nav-text">dict的实现</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#set"><span class="toc-nav-text">set</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#增加元素-1"><span class="toc-nav-text">增加元素</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#删除元素-1"><span class="toc-nav-text">删除元素</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#判断元素是否存在-1"><span class="toc-nav-text">判断元素是否存在</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#set的基本实现"><span class="toc-nav-text">set的基本实现</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#zset-sortset"><span class="toc-nav-text">zset(sortset)</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#增删元素"><span class="toc-nav-text">增删元素</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#score排序"><span class="toc-nav-text">score排序</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#zset的基本实现"><span class="toc-nav-text">zset的基本实现</span></a></li></ol></li></ol></li></ol>
+    
+  </div>
+</aside> 
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = "https://shlinym.github.io/2020/04/11/Redis的数据类型/";
+    var banner = "";
+    if (banner !== "" && banner !== "undefined" && banner !== "null") {
+      $("#article-banner").css({
+        "background-image": "url(" + banner + ")",
+      });
+    } else {
+      $("#article-banner").geopattern(url);
+    }
+    $(".header").removeClass("fixed-header");
+
+    // error image
+    $(".markdown-content img").on("error", function () {
+      $(this).attr("src", "http://file.muyutech.com/error-img.png");
+      $(this).css({
+        cursor: "default",
+      });
+    });
+
+    // zoom image
+    $(".markdown-content img").on("click", function () {
+      var src = $(this).attr("src");
+      if (src !== "http://file.muyutech.com/error-img.png") {
+        var imageW = $(this).width();
+        var imageH = $(this).height();
+
+        var zoom = (($(window).width() * 0.95) / imageW).toFixed(2);
+        zoom = zoom < 1 ? 1 : zoom;
+        zoom = zoom > 2 ? 2 : zoom;
+        var transY = (($(window).height() - imageH) / 2).toFixed(2);
+
+        $("body").append(
+          '<div class="image-view-wrap"><div class="image-view-inner"><img src="' +
+            src +
+            '" /></div></div>'
+        );
+        $(".image-view-wrap").addClass("wrap-active");
+        $(".image-view-wrap img").css({
+          width: `${imageW}`,
+          transform: `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`,
+        });
+        $("html").css("overflow", "hidden");
+
+        $(".image-view-wrap").on("click", function () {
+          $(this).remove();
+          $("html").attr("style", "");
+        });
+      }
+    });
+  })();
+</script>
+
+
+<script>
+  var qr = new QRious({
+    element: document.getElementById("share-qrcode"),
+    value: document.location.href,
+  });
+</script>
+  
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<footer class="app-footer">
+  <p class="copyright">
+    &copy; 2020 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a href="https://github.com/yanm1ng">yanm1ng</a>
+    <br>
+    访问量<span id="busuanzi_value_site_pv"></span>,
+    访客数<span id="busuanzi_value_site_uv"></span>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+<script src="/js/script.js"></script>
+  </body>
+</html>

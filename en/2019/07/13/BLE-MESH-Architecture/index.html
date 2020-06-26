@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html>
+  <head><meta name="generator" content="Hexo 3.9.0">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="Lin&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+  <link rel="shortcut icon" type="image/ico" href="images/avatar.png">
+  
+  <title>
+     BLE-MESH-Architecture | Lin&#39;s Blog 
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css"> 
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+   <script src="/js/qrious.js"></script>   
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+ 
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-169360841-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag() {
+    dataLayer.push(arguments);
+  }
+  gtag("js", new Date());
+  gtag("config", "UA-169360841-1");
+</script>
+
+
+</head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png">
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Lin's Blog</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/en/" class="item-link">EN</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/en/" class="menu-link">EN</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>BLE-MESH-Architecture</h2>
+  <p class="post-date">2019-07-13</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h1 id="架构"><a href="#架构" class="headerlink" title="架构"></a>架构</h1><p>整体基于BLE，搭建一套上层体系。</p>
+<p><img src="/images/ble-mesh-arch.png"></p>
+<ul>
+<li>Model layer<br>定义一个model，标准化一些操作或用户场景，例如灯和传感器</li>
+<li>Foundation Model layer<br>定义状态，消息和配置及管理整个mesh网络</li>
+<li>Access layer<br>应用层和较底层的交互接口。定义和控制加密等一些东西</li>
+<li>Upper transport layer<br>加密，解密，认证。</li>
+<li>Lower transport layer<br>数据的分段和重组</li>
+<li>Network layer<br>控制消息的接受和转发</li>
+<li>Bearer layer<br>控制消息如何在节点间传递，两个bearer，advertising和GATT。其实就是广播和连接两种方式。</li>
+</ul>
+<h1 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h1><ul>
+<li>一对一或一对多</li>
+<li>允许消息转发，拓展距离</li>
+<li>消息加密</li>
+<li>与已有BLE兼容</li>
+<li>消息发送及时</li>
+<li>一个或多个节点丢失后仍可以正常工作</li>
+</ul>
+<h1 id="组成"><a href="#组成" class="headerlink" title="组成"></a>组成</h1><ul>
+<li>地址<br>确认消息的起点和终点</li>
+<li>Network key<br>在Network layer层加密和认证信息</li>
+<li>application key<br>在Access layer层加密和认证信息</li>
+<li>IV index<br>拓展网络的lifetime，避免重复消息的发生</li>
+</ul>
+<p>一个网络可以有多个子网(比如酒店可以有多个房间)，一个设备可以属于多个子网(通过拥有多个Network key)。<br>这里有一个primary NetKey的概念，在primary里，节点可以参与IV update procedure。其他子网则只能传播。<br>Network resource通常由model server来管理(一般是手机)。</p>
+<h1 id="Architectural-concepts"><a href="#Architectural-concepts" class="headerlink" title="Architectural concepts"></a>Architectural concepts</h1><p>几个概念</p>
+<ul>
+<li>States<br>设备的状态信息</li>
+<li>Bound states<br>绑定的状态信息。几个状态信息绑定在一起，一个发生改变，另一个也随之改变</li>
+<li>Messages<br>操作states的信息</li>
+<li>Elements<br>一个节点可以有多个elements</li>
+<li>Models<br>models定义一个节点的一些通用的信息。<ul>
+<li>Server model<br>一个server model由一个或多个节点的一个或多个element组成</li>
+<li>Client model<br>client不含state，client通常去请求，改变，消费server的states。</li>
+<li>Control model<br>一个control大概含有client去与其他server或其他server的client交流。<br>一个device可以有server，client和control。</li>
+</ul>
+</li>
+<li>Publish-subscribe和message change<br>消息订阅机制<br>一个消息可以从推送消息到单播，组播或者虚拟地址上。其他节点如果对这些消息有兴趣，就可以订阅这些消息。</li>
+<li>Friendship<br>Friendship用于低功耗节点。通常低功耗节点不能持续监听mesh消息，所以低功耗节点可以和附近正常节点建立Friendship关系，由附近节点接收并缓存低功耗节点的mesh消息到队列中，灯带低功耗节点唤醒后，在推送这些消息过去。<br>一个低功耗节点只能有一个friend节点。</li>
+<li>Feature<br>一个节点有四种features：<ul>
+<li>Relay feature</li>
+<li>Proxy feature<br>支持GATT</li>
+<li>Low Power feature</li>
+<li>Friend feature</li>
+</ul>
+</li>
+</ul>
+</section>
+    <!-- Tags START -->
+    
+    <div class="tags">
+      <span>Tags:</span>
+      
+  <a href="/tags#Embedding" >
+    <span class="tag-code">Embedding</span>
+  </a>
+
+    </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2019/06/22/XGBoost/">
+        <span class="nav-arrow">← </span>
+        
+          XGBoost
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2019/07/13/BLE-MESH-Network/">
+        
+          BLE-MESH-Network
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+    <div class="qrcode">
+      <canvas id="share-qrcode"></canvas>
+      <p class="notice">扫描二维码，分享此文章</p>
+    </div>
+    
+    <!-- 二维码 END -->
+    <!-- Comment -->
+    
+    <div id="gitalk-container"></div>
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+<script type="text/javascript">
+  var gitalk = new Gitalk({
+    clientID: "10e5c6d1b0796f1e6675",
+    clientSecret: "222355b76086e463f2fa56d38d7fe92cbf089774",
+    repo: "gitalk",
+    owner: "shlinym",
+    admin: "shlinym".split(",").filter((l) => l),
+    id: decodeURIComponent(location.pathname),
+    labels: "gitalk".split(",").filter((l) => l),
+    perPage: parseInt("15"),
+    pagerDirection: "last",
+  });
+
+  gitalk.render("gitalk-container");
+</script>
+ 
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+   <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#架构"><span class="toc-nav-text">架构</span></a></li><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#特点"><span class="toc-nav-text">特点</span></a></li><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#组成"><span class="toc-nav-text">组成</span></a></li><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#Architectural-concepts"><span class="toc-nav-text">Architectural concepts</span></a></li></ol>
+    
+  </div>
+</aside> 
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = "https://shlinym.github.io/en/2019/07/13/BLE-MESH-Architecture/";
+    var banner = "";
+    if (banner !== "" && banner !== "undefined" && banner !== "null") {
+      $("#article-banner").css({
+        "background-image": "url(" + banner + ")",
+      });
+    } else {
+      $("#article-banner").geopattern(url);
+    }
+    $(".header").removeClass("fixed-header");
+
+    // error image
+    $(".markdown-content img").on("error", function () {
+      $(this).attr("src", "http://file.muyutech.com/error-img.png");
+      $(this).css({
+        cursor: "default",
+      });
+    });
+
+    // zoom image
+    $(".markdown-content img").on("click", function () {
+      var src = $(this).attr("src");
+      if (src !== "http://file.muyutech.com/error-img.png") {
+        var imageW = $(this).width();
+        var imageH = $(this).height();
+
+        var zoom = (($(window).width() * 0.95) / imageW).toFixed(2);
+        zoom = zoom < 1 ? 1 : zoom;
+        zoom = zoom > 2 ? 2 : zoom;
+        var transY = (($(window).height() - imageH) / 2).toFixed(2);
+
+        $("body").append(
+          '<div class="image-view-wrap"><div class="image-view-inner"><img src="' +
+            src +
+            '" /></div></div>'
+        );
+        $(".image-view-wrap").addClass("wrap-active");
+        $(".image-view-wrap img").css({
+          width: `${imageW}`,
+          transform: `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`,
+        });
+        $("html").css("overflow", "hidden");
+
+        $(".image-view-wrap").on("click", function () {
+          $(this).remove();
+          $("html").attr("style", "");
+        });
+      }
+    });
+  })();
+</script>
+
+
+<script>
+  var qr = new QRious({
+    element: document.getElementById("share-qrcode"),
+    value: document.location.href,
+  });
+</script>
+  
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<footer class="app-footer">
+  <p class="copyright">
+    &copy; 2020 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a href="https://github.com/yanm1ng">yanm1ng</a>
+    <br>
+    访问量<span id="busuanzi_value_site_pv"></span>,
+    访客数<span id="busuanzi_value_site_uv"></span>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+<script src="/js/script.js"></script>
+  </body>
+</html>

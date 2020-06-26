@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html>
+  <head><meta name="generator" content="Hexo 3.9.0">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="Lin&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+  <link rel="shortcut icon" type="image/ico" href="images/avatar.png">
+  
+  <title>
+     Go语言sync.Pool源码分析 | Lin&#39;s Blog 
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css"> 
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+   <script src="/js/qrious.js"></script>   
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+ 
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-169360841-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag() {
+    dataLayer.push(arguments);
+  }
+  gtag("js", new Date());
+  gtag("config", "UA-169360841-1");
+</script>
+
+
+</head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png">
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Lin's Blog</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/en/" class="item-link">EN</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/en/" class="menu-link">EN</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>Go语言sync.Pool源码分析</h2>
+  <p class="post-date">2020-06-26</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h2 id="Benchmark测试"><a href="#Benchmark测试" class="headerlink" title="Benchmark测试"></a>Benchmark测试</h2><p>我们定义一个Object的结构体，通过改变数组a的长度，来看一下基准测试</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> pooltest</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">"sync"</span></span><br><span class="line">	<span class="string">"testing"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Object <span class="keyword">struct</span> &#123;</span><br><span class="line">	a [<span class="number">1</span>]<span class="keyword">int</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> pool = sync.Pool&#123;</span><br><span class="line">	New: <span class="function"><span class="keyword">func</span><span class="params">()</span> <span class="title">interface</span></span>&#123;&#125; &#123; <span class="keyword">return</span> <span class="built_in">new</span>(Object) &#125;,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">BenchmarkNoPool</span><span class="params">(b *testing.B)</span></span> &#123;</span><br><span class="line">	<span class="keyword">var</span> p *Object</span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; b.N; i++ &#123;</span><br><span class="line">		p = &amp;Object&#123;&#125;</span><br><span class="line">		p.a[<span class="number">0</span>]++</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">BenchmarkPool</span><span class="params">(b *testing.B)</span></span> &#123;</span><br><span class="line">	<span class="keyword">var</span> p *Object</span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; b.N; i++ &#123;</span><br><span class="line">		p = pool.Get().(*Object)</span><br><span class="line">		p.a[<span class="number">0</span>]++</span><br><span class="line">		pool.Put(p)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">BenchmarkNoPool-8   	66389622	        16.4 ns/op	       8 B/op	       1 allocs/op</span><br><span class="line">BenchmarkPool-8     	60043473	        19.6 ns/op	       0 B/op	       0 allocs/op</span><br></pre></td></tr></table></figure>
+<p>内存上，Pool是做到了0B/op，但是时间上，会稍高一些</p>
+<p>增加a的长度，增加为32</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">BenchmarkNoPool-8   	20242838	        55.8 ns/op	     256 B/op	       1 allocs/op</span><br><span class="line">BenchmarkPool-8     	59660236	        20.0 ns/op	       0 B/op	       0 allocs/o</span><br></pre></td></tr></table></figure>
+<p>在时间上，使用Pool已经比不使用快了一倍左右</p>
+<p>继续增加a的长度到1024</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">BenchmarkNoPool-8   	 1034014	      1139 ns/op	    8192 B/op	       1 allocs/op</span><br><span class="line">BenchmarkPool-8     	61462597	        20.2 ns/op	       0 B/op	       0 allocs/op</span><br></pre></td></tr></table></figure>
+<p>时间上，已经差了50倍，并且，随着数据长度发生变化，每次操作的时间都很稳定，基本在20ns附近</p>
+<h2 id="Pool结构体"><a href="#Pool结构体" class="headerlink" title="Pool结构体"></a>Pool结构体</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Pool <span class="keyword">struct</span> &#123;</span><br><span class="line">	noCopy noCopy</span><br><span class="line"></span><br><span class="line">	local     unsafe.Pointer <span class="comment">// local fixed-size per-P pool, actual type is [P]poolLocal</span></span><br><span class="line">	localSize <span class="keyword">uintptr</span>        <span class="comment">// size of the local array</span></span><br><span class="line"></span><br><span class="line">	victim     unsafe.Pointer <span class="comment">// local from previous cycle</span></span><br><span class="line">	victimSize <span class="keyword">uintptr</span>        <span class="comment">// size of victims array</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">// New optionally specifies a function to generate</span></span><br><span class="line">	<span class="comment">// a value when Get would otherwise return nil.</span></span><br><span class="line">	<span class="comment">// It may not be changed concurrently with calls to Get.</span></span><br><span class="line">	New <span class="function"><span class="keyword">func</span><span class="params">()</span> <span class="title">interface</span></span>&#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="http://slinimage.oss-cn-beijing.aliyuncs.com/2020-06-26-101147.png" alt="image-20200626181147229"></p>
+<p>根据结构体，可以看到，缓存主要存储在private和shared中</p>
+<p>对于一个Pool的对象来说，它可能会被任意一个P拥有(假设P的数据是N)，因此会有N个poolLocal，每个P都拥有一个poolLocal，不同的P通过local指针访问自己poolLocal</p>
+<p>victim则用于存储old local，用于gc回收，<code>poolCleanup</code>介绍该字段的使用</p>
+<h2 id="Get"><a href="#Get" class="headerlink" title="Get"></a>Get</h2><p>Get的基本策略</p>
+<ol>
+<li>从Pprivate中读取</li>
+<li>读取不到，就从shared中读取</li>
+<li>还读取不到，就尝试从其他P的poolLocal中”偷取”</li>
+<li>上述都获取不到，通过New接口，创建一个新的</li>
+</ol>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(p *Pool)</span> <span class="title">Get</span><span class="params">()</span> <span class="title">interface</span></span>&#123;&#125; &#123;</span><br><span class="line">  ...</span><br><span class="line">  l, pid := p.pin()</span><br><span class="line">  x := l.private</span><br><span class="line">	<span class="keyword">if</span> x == <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="comment">// Try to pop the head of the local shard. We prefer</span></span><br><span class="line">		<span class="comment">// the head over the tail for temporal locality of</span></span><br><span class="line">		<span class="comment">// reuse.</span></span><br><span class="line">		x, _ = l.shared.popHead()</span><br><span class="line">		<span class="keyword">if</span> x == <span class="literal">nil</span> &#123;</span><br><span class="line">			x = p.getSlow(pid)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">  ...</span><br><span class="line">  <span class="keyword">if</span> x == <span class="literal">nil</span> &amp;&amp; p.New != <span class="literal">nil</span> &#123;</span><br><span class="line">		x = p.New()</span><br><span class="line">	&#125;</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ol>
+<li>首先通过<code>p.pin()</code>获取当前goroutine绑定的P，以及P对应的poolLocal</li>
+</ol>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// pin pins the current goroutine to P, disables preemption and</span></span><br><span class="line"><span class="comment">// returns poolLocal pool for the P and the P's id.</span></span><br><span class="line"><span class="comment">// Caller must call runtime_procUnpin() when done with the pool.</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(p *Pool)</span> <span class="title">pin</span><span class="params">()</span> <span class="params">(*poolLocal, <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">	pid := runtime_procPin()</span><br><span class="line">	<span class="comment">// In pinSlow we store to local and then to localSize, here we load in opposite order.</span></span><br><span class="line">	<span class="comment">// Since we've disabled preemption, GC cannot happen in between.</span></span><br><span class="line">	<span class="comment">// Thus here we must observe local at least as large localSize.</span></span><br><span class="line">	<span class="comment">// We can observe a newer/larger local, it is fine (we must observe its zero-initialized-ness).</span></span><br><span class="line">	s := atomic.LoadUintptr(&amp;p.localSize) <span class="comment">// load-acquire</span></span><br><span class="line">	l := p.local                          <span class="comment">// load-consume</span></span><br><span class="line">	<span class="keyword">if</span> <span class="keyword">uintptr</span>(pid) &lt; s &#123;</span><br><span class="line">		<span class="keyword">return</span> indexLocal(l, pid), pid</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> p.pinSlow()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>当出现以下两种，会执行<code>p.pinSlow()</code></p>
+<ul>
+<li>localSize未初始化的时候</li>
+<li>P的数量发生变化</li>
+</ul>
+<p><code>p.pinSlow()</code>会进行检查是否需要创建新的local</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(p *Pool)</span> <span class="title">pinSlow</span><span class="params">()</span> <span class="params">(*poolLocal, <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">  ...</span><br><span class="line">  <span class="keyword">if</span> p.local == <span class="literal">nil</span> &#123;</span><br><span class="line">    allPools = <span class="built_in">append</span>(allPools, p)</span><br><span class="line">  &#125;</span><br><span class="line">  size := runtime.GOMAXPROCS(<span class="number">0</span>)</span><br><span class="line">	local := <span class="built_in">make</span>([]poolLocal, size)</span><br><span class="line">	atomic.StorePointer(&amp;p.local, unsafe.Pointer(&amp;local[<span class="number">0</span>])) <span class="comment">// store-release</span></span><br><span class="line">	atomic.StoreUintptr(&amp;p.localSize, <span class="keyword">uintptr</span>(size))         <span class="comment">// store-release</span></span><br><span class="line">  <span class="keyword">return</span> &amp;local[pid], pid</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到<code>pinSlow</code>函数，如果当前P的个数是N，则会创建一个poolLocal的切片，切片的长度是N，并且返回当前P对应的poolLocal</p>
+<ol>
+<li>继续Get函数，获取到P对应的poolLocal后，会检查private是否有对象可以复用，有就直接返回，如果没有，就尝试查找shared</li>
+</ol>
+<p>shared是一个无锁队列，具体实现在poolqueue.go文件中</p>
+<blockquote>
+<p>poolqueue.go中无锁队列的思想：<a href="http://people.cs.pitt.edu/~jacklange/teaching/cs2510-f12/papers/implementing_lock_free.pdf" target="_blank" rel="noopener">implement lock free</a></p>
+</blockquote>
+<ol>
+<li>shared中获取不到的话，就会进入<code>getSlow</code>进行查找</li>
+</ol>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(p *Pool)</span> <span class="title">getSlow</span><span class="params">(pid <span class="keyword">int</span>)</span> <span class="title">interface</span></span>&#123;&#125; &#123;</span><br><span class="line">  size := atomic.LoadUintptr(&amp;p.localSize) <span class="comment">// load-acquire</span></span><br><span class="line">	locals := p.local                        <span class="comment">// load-consume</span></span><br><span class="line">  <span class="comment">// Try to steal one element from other procs.</span></span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="keyword">int</span>(size); i++ &#123;</span><br><span class="line">		l := indexLocal(locals, (pid+i+<span class="number">1</span>)%<span class="keyword">int</span>(size))</span><br><span class="line">		<span class="keyword">if</span> x, _ := l.shared.popTail(); x != <span class="literal">nil</span> &#123;</span><br><span class="line">			<span class="keyword">return</span> x</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">  ...</span><br><span class="line">  	<span class="comment">// Try the victim cache. We do this after attempting to steal</span></span><br><span class="line">	<span class="comment">// from all primary caches because we want objects in the</span></span><br><span class="line">	<span class="comment">// victim cache to age out if at all possible.</span></span><br><span class="line">	size = atomic.LoadUintptr(&amp;p.victimSize)</span><br><span class="line">	<span class="keyword">if</span> <span class="keyword">uintptr</span>(pid) &gt;= size &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">	&#125;</span><br><span class="line">	locals = p.victim</span><br><span class="line">	l := indexLocal(locals, pid)</span><br><span class="line">	<span class="keyword">if</span> x := l.private; x != <span class="literal">nil</span> &#123;</span><br><span class="line">		l.private = <span class="literal">nil</span></span><br><span class="line">		<span class="keyword">return</span> x</span><br><span class="line">	&#125;</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>getSlow</code>会首先尝试从其他<code>poolLocal</code>的shared中偷取</p>
+<p>偷取不到的话，会尝试从<code>victim</code>中偷取</p>
+<ol>
+<li>全部获取失败，会尝试调用<code>p.New</code>创建一个新的对象</li>
+</ol>
+<h2 id="Put"><a href="#Put" class="headerlink" title="Put"></a>Put</h2><p><code>Put</code>的实现，相对来说就比较简单</p>
+<ol>
+<li>先放到private上</li>
+<li>失败的话，放入shared中</li>
+</ol>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Put adds x to the pool.</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(p *Pool)</span> <span class="title">Put</span><span class="params">(x <span class="keyword">interface</span>&#123;&#125;)</span></span> &#123;</span><br><span class="line">	<span class="keyword">if</span> x == <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> race.Enabled &#123;</span><br><span class="line">		<span class="keyword">if</span> fastrand()%<span class="number">4</span> == <span class="number">0</span> &#123;</span><br><span class="line">			<span class="comment">// Randomly drop x on floor.</span></span><br><span class="line">			<span class="keyword">return</span></span><br><span class="line">		&#125;</span><br><span class="line">		race.ReleaseMerge(poolRaceAddr(x))</span><br><span class="line">		race.Disable()</span><br><span class="line">	&#125;</span><br><span class="line">	l, _ := p.pin()</span><br><span class="line">	<span class="keyword">if</span> l.private == <span class="literal">nil</span> &#123;</span><br><span class="line">		l.private = x</span><br><span class="line">		x = <span class="literal">nil</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> x != <span class="literal">nil</span> &#123;</span><br><span class="line">		l.shared.pushHead(x)</span><br><span class="line">	&#125;</span><br><span class="line">	runtime_procUnpin()</span><br><span class="line">	<span class="keyword">if</span> race.Enabled &#123;</span><br><span class="line">		race.Enable()</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="poolCleanup"><a href="#poolCleanup" class="headerlink" title="poolCleanup"></a>poolCleanup</h2><p>pool中的对象，也会被GC回收，基于源码，</p>
+<p>在第一次GC中，移动<code>local</code>到<code>victim</code>中，此时，由于仍然有<code>victim</code>引用，所以没有被清扫</p>
+<p>在第二次GC中，<code>victim</code>中被重新覆盖，<code>victim</code>的旧值失去了引用，将会在本次GC中被清扫</p>
+<p>所以pool最多会在两次GC后被清扫</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">poolCleanup</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="comment">// This function is called with the world stopped, at the beginning of a garbage collection.</span></span><br><span class="line">	<span class="comment">// It must not allocate and probably should not call any runtime functions.</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">// Because the world is stopped, no pool user can be in a</span></span><br><span class="line">	<span class="comment">// pinned section (in effect, this has all Ps pinned).</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">// Drop victim caches from all pools.</span></span><br><span class="line">	<span class="keyword">for</span> _, p := <span class="keyword">range</span> oldPools &#123;</span><br><span class="line">		p.victim = <span class="literal">nil</span></span><br><span class="line">		p.victimSize = <span class="number">0</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// Move primary cache to victim cache.</span></span><br><span class="line">	<span class="keyword">for</span> _, p := <span class="keyword">range</span> allPools &#123;</span><br><span class="line">		p.victim = p.local</span><br><span class="line">		p.victimSize = p.localSize</span><br><span class="line">		p.local = <span class="literal">nil</span></span><br><span class="line">		p.localSize = <span class="number">0</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// The pools with non-empty primary caches now have non-empty</span></span><br><span class="line">	<span class="comment">// victim caches and no pools have primary caches.</span></span><br><span class="line">	oldPools, allPools = allPools, <span class="literal">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">gcStart</span><span class="params">(trigger gcTrigger)</span></span> &#123;</span><br><span class="line">  ...</span><br><span class="line">  <span class="comment">// stop the world, before gc</span></span><br><span class="line">  <span class="comment">// clearpools before we start the GC. If we wait they memory will not be</span></span><br><span class="line">	<span class="comment">// reclaimed until the next GC cycle.</span></span><br><span class="line">	clearpools()</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">clearpools</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="comment">// clear sync.Pools</span></span><br><span class="line">	<span class="keyword">if</span> poolcleanup != <span class="literal">nil</span> &#123;</span><br><span class="line">		poolcleanup()</span><br><span class="line">	&#125;</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>使用GC做Benchmark，在每一次Put之后强制触发GC</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">"runtime"</span></span><br><span class="line">	<span class="string">"testing"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Object <span class="keyword">struct</span> &#123;</span><br><span class="line">	a [<span class="number">1024</span>]<span class="keyword">int</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> pool = sync.Pool&#123;</span><br><span class="line">	New: <span class="function"><span class="keyword">func</span><span class="params">()</span> <span class="title">interface</span></span>&#123;&#125; &#123; <span class="keyword">return</span> <span class="built_in">new</span>(Object) &#125;,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">BenchmarkNoPool</span><span class="params">(b *testing.B)</span></span> &#123;</span><br><span class="line">	<span class="keyword">var</span> p *Object</span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; b.N; i++ &#123;</span><br><span class="line">		p = &amp;Object&#123;&#125;</span><br><span class="line">		p.a[<span class="number">0</span>]++</span><br><span class="line">		runtime.GC()</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">BenchmarkPool</span><span class="params">(b *testing.B)</span></span> &#123;</span><br><span class="line">	<span class="keyword">var</span> p *Object</span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; b.N; i++ &#123;</span><br><span class="line">		p = pool.Get().(*Object)</span><br><span class="line">		p.a[<span class="number">0</span>]++</span><br><span class="line">		pool.Put(p)</span><br><span class="line">		runtime.GC()</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">BenchmarkNoPool-8   	    7579	    154017 ns/op	    8199 B/op	       1 allocs/op</span><br><span class="line">BenchmarkPool-8     	    8557	    140615 ns/op	    7252 B/op	       2 allocs/op</span><br></pre></td></tr></table></figure>
+<p>内存消耗上，差异变得很小</p>
+<blockquote>
+<p>如果减小数组的长度，pool的内存消耗要高于不使用pool</p>
+</blockquote>
+</section>
+    <!-- Tags START -->
+    
+    <div class="tags">
+      <span>Tags:</span>
+      
+  <a href="/tags#Go" >
+    <span class="tag-code">Go</span>
+  </a>
+
+  <a href="/tags#源码分析" >
+    <span class="tag-code">源码分析</span>
+  </a>
+
+    </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2020/06/07/Redis基本数据结构-3/">
+        <span class="nav-arrow">← </span>
+        
+          Redis基本数据结构-3
+        
+      </a>
+    
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+    <div class="qrcode">
+      <canvas id="share-qrcode"></canvas>
+      <p class="notice">扫描二维码，分享此文章</p>
+    </div>
+    
+    <!-- 二维码 END -->
+    <!-- Comment -->
+    
+    <div id="gitalk-container"></div>
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+<script type="text/javascript">
+  var gitalk = new Gitalk({
+    clientID: "10e5c6d1b0796f1e6675",
+    clientSecret: "222355b76086e463f2fa56d38d7fe92cbf089774",
+    repo: "gitalk",
+    owner: "shlinym",
+    admin: "shlinym".split(",").filter((l) => l),
+    id: decodeURIComponent(location.pathname),
+    labels: "gitalk".split(",").filter((l) => l),
+    perPage: parseInt("15"),
+    pagerDirection: "last",
+  });
+
+  gitalk.render("gitalk-container");
+</script>
+ 
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+   <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#Benchmark测试"><span class="toc-nav-text">Benchmark测试</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#Pool结构体"><span class="toc-nav-text">Pool结构体</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#Get"><span class="toc-nav-text">Get</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#Put"><span class="toc-nav-text">Put</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#poolCleanup"><span class="toc-nav-text">poolCleanup</span></a></li></ol>
+    
+  </div>
+</aside> 
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = "https://shlinym.github.io/en/2020/06/26/Go语言sync-Pool源码分析/";
+    var banner = "";
+    if (banner !== "" && banner !== "undefined" && banner !== "null") {
+      $("#article-banner").css({
+        "background-image": "url(" + banner + ")",
+      });
+    } else {
+      $("#article-banner").geopattern(url);
+    }
+    $(".header").removeClass("fixed-header");
+
+    // error image
+    $(".markdown-content img").on("error", function () {
+      $(this).attr("src", "http://file.muyutech.com/error-img.png");
+      $(this).css({
+        cursor: "default",
+      });
+    });
+
+    // zoom image
+    $(".markdown-content img").on("click", function () {
+      var src = $(this).attr("src");
+      if (src !== "http://file.muyutech.com/error-img.png") {
+        var imageW = $(this).width();
+        var imageH = $(this).height();
+
+        var zoom = (($(window).width() * 0.95) / imageW).toFixed(2);
+        zoom = zoom < 1 ? 1 : zoom;
+        zoom = zoom > 2 ? 2 : zoom;
+        var transY = (($(window).height() - imageH) / 2).toFixed(2);
+
+        $("body").append(
+          '<div class="image-view-wrap"><div class="image-view-inner"><img src="' +
+            src +
+            '" /></div></div>'
+        );
+        $(".image-view-wrap").addClass("wrap-active");
+        $(".image-view-wrap img").css({
+          width: `${imageW}`,
+          transform: `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`,
+        });
+        $("html").css("overflow", "hidden");
+
+        $(".image-view-wrap").on("click", function () {
+          $(this).remove();
+          $("html").attr("style", "");
+        });
+      }
+    });
+  })();
+</script>
+
+
+<script>
+  var qr = new QRious({
+    element: document.getElementById("share-qrcode"),
+    value: document.location.href,
+  });
+</script>
+  
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<footer class="app-footer">
+  <p class="copyright">
+    &copy; 2020 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a href="https://github.com/yanm1ng">yanm1ng</a>
+    <br>
+    访问量<span id="busuanzi_value_site_pv"></span>,
+    访客数<span id="busuanzi_value_site_uv"></span>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+<script src="/js/script.js"></script>
+  </body>
+</html>

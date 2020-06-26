@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html>
+  <head><meta name="generator" content="Hexo 3.9.0">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="Lin&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+  <link rel="shortcut icon" type="image/ico" href="images/avatar.png">
+  
+  <title>
+     Lin&#39;s Blog 
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css"> 
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+   <script src="/js/qrious.js"></script>   
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+ 
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-169360841-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag() {
+    dataLayer.push(arguments);
+  }
+  gtag("js", new Date());
+  gtag("config", "UA-169360841-1");
+</script>
+
+
+</head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png">
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Lin's Blog</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link active">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/en/" class="item-link">EN</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link mobile-active">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/en/" class="menu-link">EN</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <main class="app-body">
+  
+  <article class="article-card">
+    <h2 class="article-head">
+      <a href="/2019/07/13/FreeRTOS-schedule/">FreeRTOS-schedule</a>
+    </h2>
+    <p class="article-date">2019年7月13日</p>
+     
+  <a href="/tags#Embedding" >
+    <span class="tag-code">Embedding</span>
+  </a>
+ 
+    <div class="article-summary">
+       任务FreeRTOS的任务处理函数结构比较简单，函数内不允许return，必须运行在一个无限循环中。如果不需要，最好显示的删除该任务。
+任务状态类似常见的操作系统任务状态，FreeRTOS有几个简单的任务状态。
+
+大部分任务，都运行在Running和Blocked这两种状态之间。
+调度策略这 ...
+      
+    </div>
+    <a class="more" href="/2019/07/13/FreeRTOS-schedule/"
+      >Read more</a
+    >
+  </article>
+  
+  <article class="article-card">
+    <h2 class="article-head">
+      <a href="/2019/07/13/BLE-MESH-Gatt/">BLE-MESH-Gatt</a>
+    </h2>
+    <p class="article-date">2019年7月13日</p>
+     
+  <a href="/tags#Embedding" >
+    <span class="tag-code">Embedding</span>
+  </a>
+ 
+    <div class="article-summary">
+       Proxy Protocol允许节点通过GATT收发mesh消息
+Proxy Protocol Roles包含两部分：Proxy Server和Proxy Client
+
+Proxy Server需要支持Proxy Protocol和其他至少一种mesh bearer。通常是要GATT和AD ...
+      
+    </div>
+    <a class="more" href="/2019/07/13/BLE-MESH-Gatt/"
+      >Read more</a
+    >
+  </article>
+  
+  <article class="article-card">
+    <h2 class="article-head">
+      <a href="/2019/07/13/BLE-MESH-Provision/">BLE-MESH-Provision</a>
+    </h2>
+    <p class="article-date">2019年7月13日</p>
+     
+  <a href="/tags#Embedding" >
+    <span class="tag-code">Embedding</span>
+  </a>
+ 
+    <div class="article-summary">
+       Provision statck下图是provision的stack架构，分为三层，左边基于Adv，右边基于GATT
+Provision bearer layerbearer，送信人的意思，表示传输媒介两种bearer构成：
+
+PB-ADV
+PB-GATT
+
+一个未配对的设备应该支持上述两种 ...
+      
+    </div>
+    <a class="more" href="/2019/07/13/BLE-MESH-Provision/"
+      >Read more</a
+    >
+  </article>
+  
+  <article class="article-card">
+    <h2 class="article-head">
+      <a href="/2019/07/13/BLE-MESH-Network/">BLE-MESH-Network</a>
+    </h2>
+    <p class="article-date">2019年7月13日</p>
+     
+  <a href="/tags#Embedding" >
+    <span class="tag-code">Embedding</span>
+  </a>
+ 
+    <div class="article-summary">
+       地址
+单播地址(unicast address)最大32767(0x7FFF)，有Provisioner在配对的时候分配
+
+虚拟地址(virtual address)代表一系列目标地址，16bit的值, 范围0x8000~0xBFFF  虚拟地址的意思：  Label UUID是128bit ...
+      
+    </div>
+    <a class="more" href="/2019/07/13/BLE-MESH-Network/"
+      >Read more</a
+    >
+  </article>
+  
+  <article class="article-card">
+    <h2 class="article-head">
+      <a href="/2019/07/13/BLE-MESH-Architecture/">BLE-MESH-Architecture</a>
+    </h2>
+    <p class="article-date">2019年7月13日</p>
+     
+  <a href="/tags#Embedding" >
+    <span class="tag-code">Embedding</span>
+  </a>
+ 
+    <div class="article-summary">
+       架构整体基于BLE，搭建一套上层体系。
+
+
+Model layer定义一个model，标准化一些操作或用户场景，例如灯和传感器
+Foundation Model layer定义状态，消息和配置及管理整个mesh网络
+Access layer应用层和较底层的交互接口。定义和控制加密等一些东西
+ ...
+      
+    </div>
+    <a class="more" href="/2019/07/13/BLE-MESH-Architecture/"
+      >Read more</a
+    >
+  </article>
+  
+  <article class="article-card">
+    <h2 class="article-head">
+      <a href="/2019/06/22/XGBoost/">XGBoost</a>
+    </h2>
+    <p class="article-date">2019年6月22日</p>
+     
+  <a href="/tags#Machine Learning" >
+    <span class="tag-code">Machine Learning</span>
+  </a>
+ 
+    <div class="article-summary">
+       XGBoostXGBoost本身属于随机森林的范畴，在详细点的话，属于Gradient Tree Boosting的范畴，首先，随机森林是很容易过拟合，XGBoost在Gradient Tree Boosting之上，在计算Loss的时候，引入了回归，通过回归解决过拟合的问题。
+那么，来看一 ...
+      
+    </div>
+    <a class="more" href="/2019/06/22/XGBoost/"
+      >Read more</a
+    >
+  </article>
+  
+  <article class="article-card">
+    <h2 class="article-head">
+      <a href="/2019/06/21/Naive Bayes Classifier/">Naive Bayes Classifier</a>
+    </h2>
+    <p class="article-date">2019年6月21日</p>
+     
+  <a href="/tags#Machine Learning" >
+    <span class="tag-code">Machine Learning</span>
+  </a>
+ 
+    <div class="article-summary">
+       什么是贝叶斯贝叶斯是一种概率定理，
+
+p(c|X) = \frac{p(c, X)}{p(X)} = \frac{p(X|c)p(c)}{p(X)}\tag{1}如果$X$是由一系列特征$x_1, x_2, x_3…x_n$组成
+根据全概率定理，可以将$p(c,x)$展开
+$p(c, X)  ...
+      
+    </div>
+    <a class="more" href="/2019/06/21/Naive Bayes Classifier/"
+      >Read more</a
+    >
+  </article>
+  
+  <article class="article-card">
+    <h2 class="article-head">
+      <a href="/2019/05/16/Hexo的多语言配置/">Hexo的多语言配置</a>
+    </h2>
+    <p class="article-date">2019年5月16日</p>
+    
+    <div class="article-summary">
+       关于Hexo的中英文语言配置，我的做法是，在菜单栏添加一个按键，通过按键切换到中/英文界面，让中文文章只显示在中文页面，英文显示在英文页面。
+插件安装首先，安装hexo-generator-i18n插件
+1$ npm install hexo-generator-i18n --save
+然后 ...
+      
+    </div>
+    <a class="more" href="/2019/05/16/Hexo的多语言配置/"
+      >Read more</a
+    >
+  </article>
+    <div class="guide-pager">
+  
+    <a href="/en/"><span class="page-arrow">← </span>Prev</a>
+  
+  
+    <a class="unvisible" href="/en/">Next <span class="page-arrow">→</span></a>
+  
+</div> 
+</main>
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<footer class="app-footer">
+  <p class="copyright">
+    &copy; 2020 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a href="https://github.com/yanm1ng">yanm1ng</a>
+    <br>
+    访问量<span id="busuanzi_value_site_pv"></span>,
+    访客数<span id="busuanzi_value_site_uv"></span>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+<script src="/js/script.js"></script>
+  </body>
+</html>

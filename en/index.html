@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html>
+  <head><meta name="generator" content="Hexo 3.9.0">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="Lin&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+  <link rel="shortcut icon" type="image/ico" href="images/avatar.png">
+  
+  <title>
+     Lin&#39;s Blog 
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css"> 
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+   <script src="/js/qrious.js"></script>   
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+ 
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-169360841-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag() {
+    dataLayer.push(arguments);
+  }
+  gtag("js", new Date());
+  gtag("config", "UA-169360841-1");
+</script>
+
+
+</head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png">
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Lin's Blog</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link active">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/en/" class="item-link">EN</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link mobile-active">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/en/" class="menu-link">EN</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <main class="app-body">
+  
+  <article class="article-card">
+    <h2 class="article-head">
+      <a href="/2020/06/26/Go语言sync-Pool源码分析/">Go语言sync.Pool源码分析</a>
+    </h2>
+    <p class="article-date">2020年6月26日</p>
+     
+  <a href="/tags#Go" >
+    <span class="tag-code">Go</span>
+  </a>
+
+  <a href="/tags#源码分析" >
+    <span class="tag-code">源码分析</span>
+  </a>
+ 
+    <div class="article-summary">
+       Benchmark测试我们定义一个Object的结构体，通过改变数组a的长度，来看一下基准测试
+12345678910111213141516171819202122232425262728293031package pooltestimport (	"sync"	"testing")typ ...
+      
+    </div>
+    <a class="more" href="/2020/06/26/Go语言sync-Pool源码分析/"
+      >Read more</a
+    >
+  </article>
+  
+  <article class="article-card">
+    <h2 class="article-head">
+      <a href="/2020/06/07/Redis基本数据结构-3/">Redis基本数据结构-3</a>
+    </h2>
+    <p class="article-date">2020年6月7日</p>
+     
+  <a href="/tags#redis源码阅读" >
+    <span class="tag-code">redis源码阅读</span>
+  </a>
+
+  <a href="/tags#数据库" >
+    <span class="tag-code">数据库</span>
+  </a>
+ 
+    <div class="article-summary">
+       intset数据结构12345typedef struct intset &#123;    uint32_t encoding;    uint32_t length;    int8_t contents[];&#125; intset;
+encoding的编码，来决定一个整数占几位
+
+ ...
+      
+    </div>
+    <a class="more" href="/2020/06/07/Redis基本数据结构-3/"
+      >Read more</a
+    >
+  </article>
+  
+  <article class="article-card">
+    <h2 class="article-head">
+      <a href="/2020/06/07/Redis基本数据结构-2/">Redis基本数据结构-2</a>
+    </h2>
+    <p class="article-date">2020年6月7日</p>
+     
+  <a href="/tags#redis源码阅读" >
+    <span class="tag-code">redis源码阅读</span>
+  </a>
+
+  <a href="/tags#数据库" >
+    <span class="tag-code">数据库</span>
+  </a>
+ 
+    <div class="article-summary">
+       压缩列表简述压缩列表的本质，是一个数组，只不过在这个数组中，存储了一些数据，指向上一个数据块的下标
+实际上，也可以认为它是一个链表，然后把这条链表数组化了
+数据结构
+
+zlbytes
+  4字节
+
+zltail
+  4 bytes
+
+zllen
+  2 len, max 65535
+
+ent ...
+      
+    </div>
+    <a class="more" href="/2020/06/07/Redis基本数据结构-2/"
+      >Read more</a
+    >
+  </article>
+  
+  <article class="article-card">
+    <h2 class="article-head">
+      <a href="/2020/06/07/Redis基本数据结构-1/">Redis基本数据结构-1</a>
+    </h2>
+    <p class="article-date">2020年6月7日</p>
+     
+  <a href="/tags#redis源码阅读" >
+    <span class="tag-code">redis源码阅读</span>
+  </a>
+
+  <a href="/tags#数据库" >
+    <span class="tag-code">数据库</span>
+  </a>
+ 
+    <div class="article-summary">
+       string这里关注几个重点API，创建、扩容、释放
+数据结构
+sds是string存储的基本单元
+在C语言中，string是以\0结尾，对于本身就包含\0的string来说，会被C语言意外截断，为了解决这个问题，redis采用了保存string长度的方法
+redis按照string的长度， ...
+      
+    </div>
+    <a class="more" href="/2020/06/07/Redis基本数据结构-1/"
+      >Read more</a
+    >
+  </article>
+  
+  <article class="article-card">
+    <h2 class="article-head">
+      <a href="/2020/06/07/hexo配置gitalk/">hexo配置gitalk</a>
+    </h2>
+    <p class="article-date">2020年6月7日</p>
+     
+  <a href="/tags#Backend" >
+    <span class="tag-code">Backend</span>
+  </a>
+ 
+    <div class="article-summary">
+       添加OAuthNew OAuth 
+
+Homepage URL和Authorization callback URL都填写博客的地址
+创建成功后，记下Client ID和Client Secret
+添加仓库gitalk是以Issue的形式存放评论，这里，创建一个新的仓库gitalk，用于存放 ...
+      
+    </div>
+    <a class="more" href="/2020/06/07/hexo配置gitalk/"
+      >Read more</a
+    >
+  </article>
+  
+  <article class="article-card">
+    <h2 class="article-head">
+      <a href="/2020/04/11/Redis的数据类型/">Redis的数据类型</a>
+    </h2>
+    <p class="article-date">2020年4月11日</p>
+     
+  <a href="/tags#Backend" >
+    <span class="tag-code">Backend</span>
+  </a>
+ 
+    <div class="article-summary">
+       Redis的数据类型string基本操作1set key value
+1get key
+过期时间1234567891011# 单位是秒set a b ex 10# 毫秒set a b px 1000# sexpire a 10# 查看过期时间ttl a
+查询长度1strlen key
+字符串 ...
+      
+    </div>
+    <a class="more" href="/2020/04/11/Redis的数据类型/"
+      >Read more</a
+    >
+  </article>
+  
+  <article class="article-card">
+    <h2 class="article-head">
+      <a href="/2020/04/05/个人网站部署https/">个人网站部署https</a>
+    </h2>
+    <p class="article-date">2020年4月5日</p>
+     
+  <a href="/tags#Backend" >
+    <span class="tag-code">Backend</span>
+  </a>
+ 
+    <div class="article-summary">
+       概述个人网站通常使用 Let’s Encrypt颁发证书， Let’s Encrypt是一个免费的证书方案，不过有效期只有三个月，到期后需要重新部署
+准备
+服务器
+
+可访问的域名
+  如果是国内服务器，域名还需要备案才能DNS解析
+
+服务器部署好Nginx
+  nginx可以参考官网的安装教 ...
+      
+    </div>
+    <a class="more" href="/2020/04/05/个人网站部署https/"
+      >Read more</a
+    >
+  </article>
+  
+  <article class="article-card">
+    <h2 class="article-head">
+      <a href="/2020/01/01/Go的参数传递/">Go的参数传递</a>
+    </h2>
+    <p class="article-date">2020年1月1日</p>
+     
+  <a href="/tags#Go" >
+    <span class="tag-code">Go</span>
+  </a>
+ 
+    <div class="article-summary">
+       Go的参数传递
+值传递普通变量、数组作为函数参数，都是值传递
+123456789101112131415package mainimport "fmt"func modify(a [5]int) &#123;	a[0] = 1&#125;func main() &#123;	var a [5 ...
+      
+    </div>
+    <a class="more" href="/2020/01/01/Go的参数传递/"
+      >Read more</a
+    >
+  </article>
+  
+  <article class="article-card">
+    <h2 class="article-head">
+      <a href="/2019/12/30/Nginx安装和使用/">Nginx安装和使用</a>
+    </h2>
+    <p class="article-date">2019年12月30日</p>
+     
+  <a href="/tags#Backend" >
+    <span class="tag-code">Backend</span>
+  </a>
+ 
+    <div class="article-summary">
+       下载依赖包
+openssl
+  openssl用于https加密
+
+
+1wget https://www.openssl.org/source/openssl-1.0.2u.tar.gz
+
+pcre
+  pcre，perl开发的正则表达式解析支持
+
+
+1wget https://ftp.pc ...
+      
+    </div>
+    <a class="more" href="/2019/12/30/Nginx安装和使用/"
+      >Read more</a
+    >
+  </article>
+  
+  <article class="article-card">
+    <h2 class="article-head">
+      <a href="/2019/07/31/word2vec-paper-reading/">word2vec_paper_reading</a>
+    </h2>
+    <p class="article-date">2019年7月31日</p>
+     
+  <a href="/tags#Machine Learning" >
+    <span class="tag-code">Machine Learning</span>
+  </a>
+
+  <a href="/tags#paper" >
+    <span class="tag-code">paper</span>
+  </a>
+ 
+    <div class="article-summary">
+       Continuous Bag-of-Word Model(CBOW)One wordthe vocabulary size is V , and the hidden layer size is N
+CBOW: input is content words, output is target ...
+      
+    </div>
+    <a class="more" href="/2019/07/31/word2vec-paper-reading/"
+      >Read more</a
+    >
+  </article>
+    <div class="guide-pager">
+  
+    <a class="unvisible" href="/en/"><span class="page-arrow">←</span> Prev</a>
+  
+  
+    <a href="/en/page/2/">Next<span class="page-arrow"> →</span></a>
+  
+</div> 
+</main>
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<footer class="app-footer">
+  <p class="copyright">
+    &copy; 2020 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a href="https://github.com/yanm1ng">yanm1ng</a>
+    <br>
+    访问量<span id="busuanzi_value_site_pv"></span>,
+    访客数<span id="busuanzi_value_site_uv"></span>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+<script src="/js/script.js"></script>
+  </body>
+</html>

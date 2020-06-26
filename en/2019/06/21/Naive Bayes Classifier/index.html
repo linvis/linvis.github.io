@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html>
+  <head><meta name="generator" content="Hexo 3.9.0">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="Lin&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+  <link rel="shortcut icon" type="image/ico" href="images/avatar.png">
+  
+  <title>
+     Naive Bayes Classifier | Lin&#39;s Blog 
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css"> 
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+   <script src="/js/qrious.js"></script>   
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+ 
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-169360841-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag() {
+    dataLayer.push(arguments);
+  }
+  gtag("js", new Date());
+  gtag("config", "UA-169360841-1");
+</script>
+
+
+</head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png">
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Lin's Blog</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/en/" class="item-link">EN</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/en/" class="menu-link">EN</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>Naive Bayes Classifier</h2>
+  <p class="post-date">2019-06-21</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h2 id="什么是贝叶斯"><a href="#什么是贝叶斯" class="headerlink" title="什么是贝叶斯"></a>什么是贝叶斯</h2><p>贝叶斯是一种概率定理，</p>
+<script type="math/tex; mode=display">
+p(c|X) = \frac{p(c, X)}{p(X)} = \frac{p(X|c)p(c)}{p(X)}\tag{1}</script><p>如果$X$是由一系列特征$x_1, x_2, x_3…x_n$组成</p>
+<p>根据全概率定理，可以将$p(c,x)$展开</p>
+<p>$p(c, X) = p(c, x_1, x_2, x_3 … x_n) = p(x_1|x_2,x_3…x_n,c)p(x_2|x_3…x_n,c)p(x3|…x_n,c)…p(x_n|c)p(c)$</p>
+<p>即</p>
+<script type="math/tex; mode=display">
+p(c|X) = \frac{p(x_1|x_2,x_3…x_n,c)*p(x_2|x_3…x_n,c)*p(x3|…x_n,c)…p(x_n|c)*p(c)}{p(X)}\tag{2}</script><h2 id="什么是朴素贝叶斯"><a href="#什么是朴素贝叶斯" class="headerlink" title="什么是朴素贝叶斯"></a>什么是朴素贝叶斯</h2><p>朴素贝叶斯是指一种简化手段，对于多种条件下的概率，认为各个条件是互相独立的，</p>
+<p>所以对于，$p(x_1|x_2,x_3…x_n,c) \approx p(x_1|c)$</p>
+<p>式2，即简化为：</p>
+<script type="math/tex; mode=display">
+p(c|X) \approx \frac{p(x_1|c)*p(x_2|c)*p(x3|c)…p(x_n|c)*p(c)}{p(X)} = \frac{p(c)\prod_{i=1}^np(x_i|c)}{p(X)}\tag{3}</script><p>该式可以进一步简化为</p>
+<script type="math/tex; mode=display">
+p\left(y | x_{1}, \ldots, x_{n}\right) \propto p(y) \prod_{i=1}^{n} p\left(x_{i} | y\right)\tag{4}</script><p>对于$p(x_1|c)$这类概率，如果$X$是离散的，那么可以直接根据古典概型，求出对应概率。</p>
+<p>如果$X$是连续变量，一般会设定一个假设，假设$X$的分布，满足高斯分布/多项式分布/伯克利分布等分布，并根据这些分布，求出对应的概率。</p>
+<p>这里，主要讨论比较常见的高斯分布(正太分布)</p>
+<h2 id="高斯分布"><a href="#高斯分布" class="headerlink" title="高斯分布"></a>高斯分布</h2><p>高斯分布的概率密度函数</p>
+<script type="math/tex; mode=display">
+f_{X}(x)=\frac{1}{\sqrt{2 \pi \sigma^2} } \mathrm{e}^{-(x-\mu)^{2} /\left(2 \sigma^{2}\right)}\tag{5}</script><p>这里$\mu和\sigma$分别是平均值和标准差</p>
+<p><img src="/images/image-20190621143901994.png" style="zoom:50%"></p>
+<p>$\mu = 0, \sigma = 1$</p>
+<p>即$X$满足高斯分布</p>
+<script type="math/tex; mode=display">
+P\left(x_{i} | y\right)=\frac{1}{\sqrt{2 \pi \sigma_{y}^{2}}} \exp \left(-\frac{\left(x_{i}-\mu_{y}\right)^{2}}{2 \sigma_{y}^{2}}\right)\tag{6}</script><h2 id="最大似然估计"><a href="#最大似然估计" class="headerlink" title="最大似然估计"></a>最大似然估计</h2><p>在分类问题中，$y$通常会有多个类别，那么，在已知$X$的前提下，应该选择哪个$y$作为输出呢？</p>
+<p>这里，基于最大似然估计原理，根据$X$，求出每一个$y$的概率，其中概率最大的$y$，作为输出</p>
+<p>则式4可以转化为:</p>
+<script type="math/tex; mode=display">
+\hat{y}=\arg \max _{y} p(y) \prod_{i=1}^{n} p\left(x_{i} | y\right)</script><p>通常，出于计算简便考虑，对式4做对数处理，</p>
+<script type="math/tex; mode=display">
+\ln p\left(y | x_{1}, \ldots, x_{n}\right) \propto \ln \big(p(y) \prod_{i=1}^{n} p\left(x_{i} | y\right) \big) = \ln p(y) + \sum_{i=1}^n\ln p(x_i|y)</script><script type="math/tex; mode=display">
+\hat{y}=\arg \max _{y} \big( \ln p(y) + \sum_{i=1}^n\ln p(x_i|y) \big) \tag{7}</script><p>根据式7，已经可以手撸一个贝叶斯分类器了。</p>
+<p><em>关于，为什么要取对数的原因，由于$p \in [0, 1]$, 连续乘积往往会结果非常小，甚至超出计算机精度，导致归0，所有用对数</em></p>
+<h2 id="Coding"><a href="#Coding" class="headerlink" title="Coding"></a>Coding</h2><p>一个基于Python的朴素贝叶斯实现</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">BayesCluster</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, train_x, train_y)</span>:</span></span><br><span class="line">        self.train_x = train_x</span><br><span class="line">        self.train_y = train_y</span><br><span class="line">        </span><br><span class="line">        self.prepare()</span><br><span class="line">        </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">prepare</span><span class="params">(self)</span>:</span></span><br><span class="line">        self.classifier = list(set(self.train_y))</span><br><span class="line">        </span><br><span class="line">        self.mean = [np.mean(self.train_x[self.train_y==cls, :], axis=<span class="number">0</span>) <span class="keyword">for</span> cls <span class="keyword">in</span> self.classifier]</span><br><span class="line">        self.std = [np.std(self.train_x[self.train_y==cls, :], axis=<span class="number">0</span>) <span class="keyword">for</span> cls <span class="keyword">in</span> self.classifier]</span><br><span class="line">        self.mean = np.array(self.mean)</span><br><span class="line">        self.std = np.array(self.std)</span><br><span class="line">    </span><br><span class="line">        self.p_classifier = [len(self.train_x[self.train_y==cls]) / len(self.train_x) <span class="keyword">for</span> cls <span class="keyword">in</span> self.classifier]</span><br><span class="line">        </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">likehood</span><span class="params">(self, x, cls_idx)</span>:</span></span><br><span class="line">        mean = self.mean[cls_idx,:]</span><br><span class="line">        std = self.std[cls_idx,:]</span><br><span class="line">        p_cls = self.p_classifier[cls_idx]</span><br><span class="line">        </span><br><span class="line">        joint = -np.sum(np.log(np.sqrt(<span class="number">2</span> * np.pi) * std)) - \</span><br><span class="line">                    np.sum(np.power(x - mean, <span class="number">2</span>) / (<span class="number">2</span> * np.power(std, <span class="number">2</span>)))</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> joint + np.log(p_cls)</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">predict</span><span class="params">(self, test)</span>:</span></span><br><span class="line">        y_hat = []</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">for</span> vector <span class="keyword">in</span> test: </span><br><span class="line">            p_y = [self.likehood(vector, i) <span class="keyword">for</span> i <span class="keyword">in</span> range(len(self.classifier))]</span><br><span class="line">        </span><br><span class="line">            y_hat.append(self.classifier[np.argmax(p_y)])</span><br><span class="line">                </span><br><span class="line">        <span class="keyword">return</span> np.array(y_hat)</span><br></pre></td></tr></table></figure>
+<p>在二分类问题上，简单测试，precision和recall同GaussianNB表现一致</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://scikit-learn.org/stable/modules/naive_bayes.html" target="_blank" rel="noopener">scikit-learn naive bayes</a></p>
+<p>Scikit-learn GaussianNB source code</p>
+<p>概率导论3.3正太随机变量</p>
+<p>概率导论9.1.2 最大似然估计</p>
+</section>
+    <!-- Tags START -->
+    
+    <div class="tags">
+      <span>Tags:</span>
+      
+  <a href="/tags#Machine Learning" >
+    <span class="tag-code">Machine Learning</span>
+  </a>
+
+    </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2019/05/16/Hexo的多语言配置/">
+        <span class="nav-arrow">← </span>
+        
+          Hexo的多语言配置
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2019/06/22/XGBoost/">
+        
+          XGBoost
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+    <div class="qrcode">
+      <canvas id="share-qrcode"></canvas>
+      <p class="notice">扫描二维码，分享此文章</p>
+    </div>
+    
+    <!-- 二维码 END -->
+    <!-- Comment -->
+    
+    <div id="gitalk-container"></div>
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+<script type="text/javascript">
+  var gitalk = new Gitalk({
+    clientID: "10e5c6d1b0796f1e6675",
+    clientSecret: "222355b76086e463f2fa56d38d7fe92cbf089774",
+    repo: "gitalk",
+    owner: "shlinym",
+    admin: "shlinym".split(",").filter((l) => l),
+    id: decodeURIComponent(location.pathname),
+    labels: "gitalk".split(",").filter((l) => l),
+    perPage: parseInt("15"),
+    pagerDirection: "last",
+  });
+
+  gitalk.render("gitalk-container");
+</script>
+ 
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+   <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#什么是贝叶斯"><span class="toc-nav-text">什么是贝叶斯</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#什么是朴素贝叶斯"><span class="toc-nav-text">什么是朴素贝叶斯</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#高斯分布"><span class="toc-nav-text">高斯分布</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#最大似然估计"><span class="toc-nav-text">最大似然估计</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#Coding"><span class="toc-nav-text">Coding</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#参考"><span class="toc-nav-text">参考</span></a></li></ol>
+    
+  </div>
+</aside> 
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = "https://shlinym.github.io/en/2019/06/21/Naive Bayes Classifier/";
+    var banner = "";
+    if (banner !== "" && banner !== "undefined" && banner !== "null") {
+      $("#article-banner").css({
+        "background-image": "url(" + banner + ")",
+      });
+    } else {
+      $("#article-banner").geopattern(url);
+    }
+    $(".header").removeClass("fixed-header");
+
+    // error image
+    $(".markdown-content img").on("error", function () {
+      $(this).attr("src", "http://file.muyutech.com/error-img.png");
+      $(this).css({
+        cursor: "default",
+      });
+    });
+
+    // zoom image
+    $(".markdown-content img").on("click", function () {
+      var src = $(this).attr("src");
+      if (src !== "http://file.muyutech.com/error-img.png") {
+        var imageW = $(this).width();
+        var imageH = $(this).height();
+
+        var zoom = (($(window).width() * 0.95) / imageW).toFixed(2);
+        zoom = zoom < 1 ? 1 : zoom;
+        zoom = zoom > 2 ? 2 : zoom;
+        var transY = (($(window).height() - imageH) / 2).toFixed(2);
+
+        $("body").append(
+          '<div class="image-view-wrap"><div class="image-view-inner"><img src="' +
+            src +
+            '" /></div></div>'
+        );
+        $(".image-view-wrap").addClass("wrap-active");
+        $(".image-view-wrap img").css({
+          width: `${imageW}`,
+          transform: `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`,
+        });
+        $("html").css("overflow", "hidden");
+
+        $(".image-view-wrap").on("click", function () {
+          $(this).remove();
+          $("html").attr("style", "");
+        });
+      }
+    });
+  })();
+</script>
+
+
+<script>
+  var qr = new QRious({
+    element: document.getElementById("share-qrcode"),
+    value: document.location.href,
+  });
+</script>
+  
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<footer class="app-footer">
+  <p class="copyright">
+    &copy; 2020 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a href="https://github.com/yanm1ng">yanm1ng</a>
+    <br>
+    访问量<span id="busuanzi_value_site_pv"></span>,
+    访客数<span id="busuanzi_value_site_uv"></span>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+<script src="/js/script.js"></script>
+  </body>
+</html>

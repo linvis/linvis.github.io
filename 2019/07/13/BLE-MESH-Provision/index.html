@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html>
+  <head><meta name="generator" content="Hexo 3.9.0">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="Lin&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+  <link rel="shortcut icon" type="image/ico" href="images/avatar.png">
+  
+  <title>
+     BLE-MESH-Provision | Lin&#39;s Blog 
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css"> 
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+   <script src="/js/qrious.js"></script>   
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+ 
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-169360841-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag() {
+    dataLayer.push(arguments);
+  }
+  gtag("js", new Date());
+  gtag("config", "UA-169360841-1");
+</script>
+
+
+</head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png">
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Lin's Blog</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/en/" class="item-link">EN</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/en/" class="menu-link">EN</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>BLE-MESH-Provision</h2>
+  <p class="post-date">2019-07-13</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h1 id="Provision-statck"><a href="#Provision-statck" class="headerlink" title="Provision statck"></a>Provision statck</h1><p>下图是provision的stack架构，分为三层，左边基于Adv，右边基于GATT<br><img src="/images/ble-mesh-provision1.png"></p>
+<h1 id="Provision-bearer-layer"><a href="#Provision-bearer-layer" class="headerlink" title="Provision bearer layer"></a>Provision bearer layer</h1><p><em>bearer，送信人的意思，表示传输媒介</em><br>两种bearer构成：</p>
+<ul>
+<li>PB-ADV</li>
+<li>PB-GATT</li>
+</ul>
+<p>一个未配对的设备应该支持上述两种中的一种，强烈建议都支持。<br>Provisioner(发起配对方)应该支持至少一种，强烈建议支持PB-ADV</p>
+<h2 id="PB-ADV"><a href="#PB-ADV" class="headerlink" title="PB-ADV"></a>PB-ADV</h2><p>通过adv channels传递Generic Provisioning PDUs，基于会话，一个未绑定的设备只能同时支持一个会话，Provisioner没有限制。会话的建立使用Link Establishment procedure。<br>MTU(maximum transmission unit)大小是24个字节<br>设备要能主动扫描(close to 100% duty)避免丢包。<br>任何使用PB-ADV的广播应该是非连接的非定向扫描的。(non-connectable, non-scannable undirected)</p>
+<p>PB-ADV数据格式：<br><img src="/images/ble-mesh-provision2.png"></p>
+<p>PB-ADV PDU格式<br><img src="/images/ble-mesh-provision3.png"></p>
+<ul>
+<li>Link ID：<br>区分每个link</li>
+<li>transaction number：<blockquote>
+<p> PDU过长，分段，所有的分段使用同样的transaction number。</p>
+<pre><code> PDU重发的时候，分段号也不变。
+ Provisioner上该值的范围0x00~0x7F，device上该值的范围0x80~0xFF。
+ 当一个设备收到Provisioning PDU，它应该把该值设置为收到的值
+ 当一个设备发送Transaction Acknowledgement PDU，该值应该被设为被承认的PB-ADV中的值----发ack的时候，使用双方协定好的transaction number。
+</code></pre></blockquote>
+</li>
+</ul>
+<h2 id="PB-GATT"><a href="#PB-GATT" class="headerlink" title="PB-GATT"></a>PB-GATT</h2><p>允许绑定设备，通过Proxy PDUs。<br><em>连接间隔建议250ms~1000ms</em>    </p>
+<blockquote>
+<p>Proxy Protocol<br>    该协议允许节点收发Network PDUs，mesh beacons，proxy configuration messages and Provisioning PDUs over a connection-oriented bearer。<br>    Proxy PDUs包含Network PDUs，Mesh beacons， proxy configuration messages or provisioning PDU。<br>    mesh消息转发的协议</p>
+</blockquote>
+<h2 id="Generic-Provisioning-layer"><a href="#Generic-Provisioning-layer" class="headerlink" title="Generic Provisioning layer"></a>Generic Provisioning layer</h2><p>传输Generic Provisioning PUDs的。</p>
+<p>Generic Provisioning PDU types:</p>
+<ul>
+<li>Transaction Start</li>
+<li>Transaction Acknowledgement</li>
+<li>Transaction Continuation</li>
+<li>Provisioning Bearer Control(会话管理)<ul>
+<li>Link Open</li>
+<li>Link ACK </li>
+<li>Link Close</li>
+<li>RFU(reserved for future use)</li>
+</ul>
+</li>
+</ul>
+<h1 id="Link-Establishment-procedure"><a href="#Link-Establishment-procedure" class="headerlink" title="Link Establishment procedure"></a>Link Establishment procedure</h1><p>不同设备靠Device UUID区分<br><em>Device UUID，128-bit UUID，因为mac地址太简单了，不够复杂</em></p>
+<p><img src="/images/ble-mesh-provision4.png"></p>
+<ul>
+<li>每个Generic Provisioning PDU应该有20~50ms延时</li>
+<li>分段</li>
+<li>segments index 0~63个，第一个发transaction start PDU, 其他的发transaction continuation PDU.</li>
+</ul>
+<h1 id="Provisioning-protocol"><a href="#Provisioning-protocol" class="headerlink" title="Provisioning protocol"></a>Provisioning protocol</h1><h2 id="Provisioning-PDUs"><a href="#Provisioning-PDUs" class="headerlink" title="Provisioning PDUs"></a>Provisioning PDUs</h2><p>发起者和设备之间交流的媒介。<br>格式如下：</p>
+<p><img src="/images/ble-mesh-provision5.png"></p>
+<p>type如下：</p>
+<p><img src="/images/ble-mesh-provision6.png"></p>
+<p><em>传输层协议使用带外数据(out-of-band,OOB)来发送一些重要的数据,如果通信一方有重要的数据需要通知对方时,协议能够将这些数据快速地发送到对方.为了发送这些数据,协议一般不使用与普通数据相同的通道,而是使用另外的通道.</em></p>
+<h2 id="Provisioning-behavior"><a href="#Provisioning-behavior" class="headerlink" title="Provisioning behavior"></a>Provisioning behavior</h2><p>Provisioning is performed using a five-step process: </p>
+<ul>
+<li>beaconing</li>
+<li>invitation </li>
+<li>exchanging public keys(ECDH加密用的)</li>
+<li>authentication</li>
+<li>distribution of the provisioning data</li>
+</ul>
+<p><em>ECDH，Deffie-Hellman 算法是 密钥交换算法，它的作用是解决如何在不安全的信道中安全的传输一些信息（主要是交换对称加密的密钥/参数）。ECDH 就是使用椭圆曲线函数的 DH 算法</em><br><em>a，b都有一对公钥，各自根据公钥计算出密钥，使用该密钥就行加密</em></p>
+<p>下图是Provisioning process的整体流程，在下一节会对每个流程做详细描述。<br><img src="/images/ble-mesh-provision7.png"></p>
+<h2 id="Provisioning-errors"><a href="#Provisioning-errors" class="headerlink" title="Provisioning errors"></a>Provisioning errors</h2><p>一旦中间失败，没有恢复机制，必须从新开始配对。<br>发起方发生错误，会立即断开连接。<br>接收方发生错误，发送一个Failed PDU给发起方，由发起方断开连接。60s超时后，可以不同发送Failed PDU。</p>
+<h2 id="流程详解"><a href="#流程详解" class="headerlink" title="流程详解"></a>流程详解</h2><p>基于PB-ADV</p>
+<p><img src="/images/ble-mesh-provision8.png"></p>
+<ul>
+<li>Invitation &amp; Capabilities<blockquote>
+<p>建立连接，检测device的兼容性。<br>兼容性主要指：支持什么加密方式，(目前只有一种加密方法FIPS P-256 Elliptic Curve,<br>就是ECDH），支不支持OOB等一些行为。</p>
+</blockquote>
+</li>
+<li><p>Exchanging public keys</p>
+<blockquote>
+<p>支持加密，即交换公共密钥，不支持不用</p>
+</blockquote>
+<p>不支持加密的流程<br><img src="/images/ble-mesh-provision9.png"></p>
+<p>支持加密的流程<br><img src="/images/ble-mesh-provision10.png"></p>
+</li>
+</ul>
+<ul>
+<li>Authentication<br>  认证，主要有三种方式。<br>  1.Output OOB<br>  device上展示一个Random number，用户在provisioner上输入这个number<br>  2.Input OOB<br>  provisioner上展示一个Random number，用户在device上输入<br>  3.Static OOB/no OOB<br>  没有Random number<br>下述是三种方式的流程图<br>Output OOB<br><img src="/images/ble-mesh-provision11.png"></li>
+</ul>
+<p>Input OOB<br><img src="/images/ble-mesh-provision12.png"></p>
+<p>Static OOB<br><img src="/images/ble-mesh-provision13.png"></p>
+<ul>
+<li>Distribution of Provisioning data<br>该环节主要用来发送Network Key，IV index， Unicast Address(分配给节点的)等信息。然后该环节还会计算出一个session key用来加密Provisioning data。<br>Provisioning data如下：<br><img src="/images/ble-mesh-provision14.png"></li>
+</ul>
+<h2 id="加密"><a href="#加密" class="headerlink" title="加密"></a>加密</h2><p>目前只支持一种加密方式FIPS P-256 Elliptic Curve，整体加密流程如下：<br>P是public key<br><img src="/images/ble-mesh-provision15.png"></p>
+<p><img src="/images/ble-mesh-provision16.png"></p>
+<p>最终算出一个session key用来加密provisioning data这些信息。</p>
+</section>
+    <!-- Tags START -->
+    
+    <div class="tags">
+      <span>Tags:</span>
+      
+  <a href="/tags#Embedding" >
+    <span class="tag-code">Embedding</span>
+  </a>
+
+    </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2019/07/13/BLE-MESH-Network/">
+        <span class="nav-arrow">← </span>
+        
+          BLE-MESH-Network
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2019/07/13/BLE-MESH-Gatt/">
+        
+          BLE-MESH-Gatt
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+    <div class="qrcode">
+      <canvas id="share-qrcode"></canvas>
+      <p class="notice">扫描二维码，分享此文章</p>
+    </div>
+    
+    <!-- 二维码 END -->
+    <!-- Comment -->
+    
+    <div id="gitalk-container"></div>
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+<script type="text/javascript">
+  var gitalk = new Gitalk({
+    clientID: "10e5c6d1b0796f1e6675",
+    clientSecret: "222355b76086e463f2fa56d38d7fe92cbf089774",
+    repo: "gitalk",
+    owner: "shlinym",
+    admin: "shlinym".split(",").filter((l) => l),
+    id: decodeURIComponent(location.pathname),
+    labels: "gitalk".split(",").filter((l) => l),
+    perPage: parseInt("15"),
+    pagerDirection: "last",
+  });
+
+  gitalk.render("gitalk-container");
+</script>
+ 
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+   <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#Provision-statck"><span class="toc-nav-text">Provision statck</span></a></li><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#Provision-bearer-layer"><span class="toc-nav-text">Provision bearer layer</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#PB-ADV"><span class="toc-nav-text">PB-ADV</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#PB-GATT"><span class="toc-nav-text">PB-GATT</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#Generic-Provisioning-layer"><span class="toc-nav-text">Generic Provisioning layer</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#Link-Establishment-procedure"><span class="toc-nav-text">Link Establishment procedure</span></a></li><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#Provisioning-protocol"><span class="toc-nav-text">Provisioning protocol</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#Provisioning-PDUs"><span class="toc-nav-text">Provisioning PDUs</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#Provisioning-behavior"><span class="toc-nav-text">Provisioning behavior</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#Provisioning-errors"><span class="toc-nav-text">Provisioning errors</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#流程详解"><span class="toc-nav-text">流程详解</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#加密"><span class="toc-nav-text">加密</span></a></li></ol></li></ol>
+    
+  </div>
+</aside> 
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = "https://shlinym.github.io/2019/07/13/BLE-MESH-Provision/";
+    var banner = "";
+    if (banner !== "" && banner !== "undefined" && banner !== "null") {
+      $("#article-banner").css({
+        "background-image": "url(" + banner + ")",
+      });
+    } else {
+      $("#article-banner").geopattern(url);
+    }
+    $(".header").removeClass("fixed-header");
+
+    // error image
+    $(".markdown-content img").on("error", function () {
+      $(this).attr("src", "http://file.muyutech.com/error-img.png");
+      $(this).css({
+        cursor: "default",
+      });
+    });
+
+    // zoom image
+    $(".markdown-content img").on("click", function () {
+      var src = $(this).attr("src");
+      if (src !== "http://file.muyutech.com/error-img.png") {
+        var imageW = $(this).width();
+        var imageH = $(this).height();
+
+        var zoom = (($(window).width() * 0.95) / imageW).toFixed(2);
+        zoom = zoom < 1 ? 1 : zoom;
+        zoom = zoom > 2 ? 2 : zoom;
+        var transY = (($(window).height() - imageH) / 2).toFixed(2);
+
+        $("body").append(
+          '<div class="image-view-wrap"><div class="image-view-inner"><img src="' +
+            src +
+            '" /></div></div>'
+        );
+        $(".image-view-wrap").addClass("wrap-active");
+        $(".image-view-wrap img").css({
+          width: `${imageW}`,
+          transform: `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`,
+        });
+        $("html").css("overflow", "hidden");
+
+        $(".image-view-wrap").on("click", function () {
+          $(this).remove();
+          $("html").attr("style", "");
+        });
+      }
+    });
+  })();
+</script>
+
+
+<script>
+  var qr = new QRious({
+    element: document.getElementById("share-qrcode"),
+    value: document.location.href,
+  });
+</script>
+  
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<footer class="app-footer">
+  <p class="copyright">
+    &copy; 2020 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a href="https://github.com/yanm1ng">yanm1ng</a>
+    <br>
+    访问量<span id="busuanzi_value_site_pv"></span>,
+    访客数<span id="busuanzi_value_site_uv"></span>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+<script src="/js/script.js"></script>
+  </body>
+</html>
